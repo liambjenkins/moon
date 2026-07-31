@@ -47,8 +47,8 @@ def build_day(current):
         current
     )
 
-    previous_day = current - timedelta(
-        days=1
+    previous_day = (
+        current - timedelta(days=1)
     )
 
     previous_raw = get_raw_moon_data(
@@ -85,6 +85,27 @@ def build_day(current):
     )
 
 
+def attach_phase_events(days, events):
+
+    for event in events:
+
+        event_date = (
+            event["time"]
+            .date()
+        )
+
+        for day in days:
+
+            if day.date == event_date:
+
+                day.phase_time = (
+                    event["time"]
+                )
+
+                break
+
+
+
 def build_days(year):
 
     start = date(
@@ -118,7 +139,20 @@ def build_days(year):
         )
 
 
+    phase_events = find_phase_events(
+        start,
+        end
+    )
+
+
+    attach_phase_events(
+        days,
+        phase_events
+    )
+
+
     return days
+
 
 
 def build_events(days):
@@ -132,25 +166,30 @@ def build_events(days):
 
         event = Event()
 
+
         event.add(
             "summary",
             format_title(day)
         )
+
 
         event.add(
             "dtstart",
             day.date
         )
 
+
         event.add(
             "description",
             format_notes(day)
         )
 
+
         event.add(
             "uid",
-            f"moon-{day.date}"
+            f"moon-{day.date}@moon-calendar"
         )
+
 
         events.append(
             event
@@ -160,27 +199,33 @@ def build_events(days):
     return events
 
 
+
 if __name__ == "__main__":
 
     year = int(
         sys.argv[1]
     )
 
+
     days = build_days(
         year
     )
+
 
     events = build_events(
         days
     )
 
+
     calendar = build_feed(
         events
     )
 
+
     save_feed(
         calendar
     )
+
 
     print(
         f"Moon calendar generated for {year} 🌙"
