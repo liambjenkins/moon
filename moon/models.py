@@ -5,9 +5,6 @@ from typing import Optional
 
 @dataclass
 class MoonDay:
-    """
-    Represents lunar information for a single calendar day.
-    """
 
     date: date
 
@@ -23,6 +20,6 @@ class MoonDay:
 
     phase_time: Optional[datetime] = None
 
-    transit: Optional[datetime] = None
+    transit: Optional[dict] = None
 
     transit_time: Optional[datetime] = None
