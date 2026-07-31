@@ -12,11 +12,10 @@ TARGETS = {
 
 
 def normalise(angle):
-
     return angle % 360
 
 
-def angle_difference(a, b):
+def angular_distance(a, b):
 
     diff = abs(a - b)
 
@@ -26,7 +25,7 @@ def angle_difference(a, b):
     )
 
 
-def find_phase_time(day):
+def find_phase_event(day):
 
     start = datetime(
         day.year,
@@ -35,13 +34,13 @@ def find_phase_time(day):
         tzinfo=timezone.utc,
     )
 
-    best_time = None
+    best = None
     best_distance = 999
 
-    for hour in range(24):
+    for minute in range(0, 1440, 30):
 
         moment = start + timedelta(
-            hours=hour
+            minutes=minute
         )
 
         angle = normalise(
@@ -50,7 +49,7 @@ def find_phase_time(day):
 
         for target, name in TARGETS.items():
 
-            distance = angle_difference(
+            distance = angular_distance(
                 angle,
                 target
             )
@@ -58,23 +57,14 @@ def find_phase_time(day):
             if distance < best_distance:
 
                 best_distance = distance
-                best_time = moment
 
+                best = {
+                    "phase": name,
+                    "time": moment,
+                }
 
-    if best_distance < 2:
+    if best_distance < 3:
 
-        return {
-            "phase": TARGETS[
-                min(
-                    TARGETS,
-                    key=lambda x: angle_difference(
-                        x,
-                        get_phase_angle(best_time)
-                    )
-                )
-            ],
-            "time": best_time,
-        }
-
+        return best
 
     return None
