@@ -50,32 +50,40 @@ def build_days():
 
         angle = raw["angle"]
 
-        phase_event = find_phase_event(current)
+        if (
+            current.month == 1
+            and current.day in [2, 3, 4]
+            and current.year == 2026
+        ):
+            print(
+                "DEBUG:",
+                current,
+                "angle=",
+                angle,
+                "phase=",
+                get_phase(angle),
+                "illumination=",
+                get_illumination(angle),
+                "longitude=",
+                raw["longitude"],
+            )
 
         rise_set = get_rise_set(current)
 
+        phase_event = find_phase_event(current)
+
         day = MoonDay(
             date=current,
-
-            # daily phase only
             phase=get_phase(angle),
-
             illumination=get_illumination(angle),
-
-            sign=get_sign(
-                raw["longitude"]
-            ),
-
-            # only populated on exact phase day
+            sign=get_sign(raw["longitude"]),
             phase_time=(
                 phase_event["time"].time()
                 if phase_event
                 and phase_event["phase"] == get_phase(angle)
                 else None
             ),
-
             moonrise=rise_set["moonrise"],
-
             moonset=rise_set["moonset"],
         )
 
