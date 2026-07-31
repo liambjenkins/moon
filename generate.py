@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from moon.astronomy import get_raw_moon_data
 from moon.models import MoonDay
-from moon.phases import get_phase, illumination, is_major_phase_day
+from moon.phases import get_phase, get_illumination, get_major_phase
 from moon.feed import build_feed, save_feed
 from moon.formatter import format_title, format_notes
 from moon.config import START_DATE, YEARS_FORWARD
@@ -48,14 +48,15 @@ def build_days():
 
         angle = raw["angle"]
 
-        major_phase = is_major_phase_day(angle)
-
-        phase = major_phase or get_phase(angle)
+        phase = (
+            get_major_phase(angle)
+            or get_phase(angle)
+        )
 
         day = MoonDay(
             date=current,
             phase=phase,
-            illumination=illumination(angle),
+            illumination=get_illumination(angle),
             sign=get_sign(raw["longitude"]),
         )
 
@@ -104,10 +105,6 @@ def build_events(days):
 if __name__ == "__main__":
 
     days = build_days()
-
-    for day in days:
-        if day.date.month == 7 and day.date.day == 31:
-            print(day)
 
     events = build_events(days)
 
