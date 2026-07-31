@@ -3,6 +3,7 @@ from datetime import date, timedelta
 from moon.astronomy import get_raw_moon_data
 from moon.models import MoonDay
 from moon.phases import get_phase, get_illumination, get_major_phase
+from moon.rise_set import get_rise_set
 from moon.feed import build_feed, save_feed
 from moon.formatter import format_title, format_notes
 from moon.config import START_DATE, YEARS_FORWARD
@@ -48,6 +49,8 @@ def build_days():
 
         angle = raw["angle"]
 
+        rise_set = get_rise_set(current)
+
         phase = (
             get_major_phase(angle)
             or get_phase(angle)
@@ -58,6 +61,8 @@ def build_days():
             phase=phase,
             illumination=get_illumination(angle),
             sign=get_sign(raw["longitude"]),
+            moonrise=rise_set["moonrise"],
+            moonset=rise_set["moonset"],
         )
 
         days.append(day)
@@ -112,4 +117,6 @@ if __name__ == "__main__":
 
     save_feed(calendar)
 
-    print("Moon calendar generated 🌙")
+    print(
+        "Moon calendar generated 🌙"
+    )
