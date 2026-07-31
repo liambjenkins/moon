@@ -1,9 +1,9 @@
 import sys
 from datetime import date, timedelta
 
-from moon.astronomy import get_moon_data
-from moon.models import MoonDay
-from moon.calendar import build_calendar, save_calendar
+from astronomy import get_moon_data
+from models import MoonDay
+from calendar import build_calendar, save_calendar
 
 
 def build_year(year):
