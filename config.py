@@ -15,3 +15,7 @@ MELBOURNE = Location(
     longitude=144.9631,
     timezone="Australia/Melbourne",
 )
+
+
+START_DATE = "2026-01-01"
+YEARS_FORWARD = 5
