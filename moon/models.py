@@ -20,3 +20,5 @@ class MoonDay:
     phase_time: object = None
 
     transit: object = None
+
+    transit_time: object = None
