@@ -23,23 +23,18 @@ def format_notes(day: MoonDay):
 
     lines = []
 
-
     title = (
         f"{day.phase} "
         f"({day.illumination}% illuminated"
     )
 
-
     if day.phase_time:
-
         title += (
             f", exact phase: "
             f"{format_time(day.phase_time)}"
         )
 
-
     title += f") in {day.sign}"
-
 
     lines.append(title)
 
@@ -59,26 +54,25 @@ def format_notes(day: MoonDay):
             f"Moonset: {format_time(day.moonset)}"
         )
 
-    
+
     if day.transit:
-
-    lines.append("")
-
-    lines.append(
-        f"Transit: "
-        f"{day.transit['from']} → "
-        f"{day.transit['to']} "
-        f"({format_time(day.transit_time) if day.transit_time else ''})"
-    )
-
-    
-    if day.transit_time:
 
         lines.append("")
 
-        lines.append(
+        transit_text = (
             f"Transit: "
-            f"{format_time(day.transit_time)}"
+            f"{day.transit['from']} → "
+            f"{day.transit['to']}"
+        )
+
+        if day.transit_time:
+
+            transit_text += (
+                f" ({format_time(day.transit_time)})"
+            )
+
+        lines.append(
+            transit_text
         )
 
 
