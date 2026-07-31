@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from skyfield.api import load, wgs84
 from skyfield.framelib import ecliptic_frame
 
-from .config import MELBOURNE
+from config import MELBOURNE
 
 
 ts = load.timescale()
