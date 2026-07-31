@@ -47,9 +47,9 @@ def build_day(current, phase_events):
     )
 
     transit = get_transit(
-        current,
-        raw["longitude"]
-    )
+    raw["longitude"],
+    current
+)
 
     return MoonDay(
         date=current,
