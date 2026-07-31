@@ -5,7 +5,6 @@ def get_phase(angle):
 
     angle = angle % 360
 
-
     if angle < 22.5:
         return "New Moon"
 
@@ -15,10 +14,10 @@ def get_phase(angle):
     elif angle < 112.5:
         return "First Quarter"
 
-    elif angle < 157.5:
+    elif angle < 170:
         return "Waxing Gibbous"
 
-    elif angle < 202.5:
+    elif angle < 190:
         return "Full Moon"
 
     elif angle < 247.5:
