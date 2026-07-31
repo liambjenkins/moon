@@ -1,46 +1,73 @@
-import math
+from datetime import timedelta
 
 
-def get_phase(angle):
+def get_phase_from_events(day, events):
 
-    angle = angle % 360
+    current = day
 
-    if angle < 22.5:
-        return "New Moon"
 
-    elif angle < 67.5:
-        return "Waxing Crescent"
+    previous = None
+    upcoming = None
 
-    elif angle < 112.5:
-        return "First Quarter"
 
-    elif angle < 170:
-        return "Waxing Gibbous"
+    for event in events:
 
-    elif angle < 190:
-        return "Full Moon"
+        event_date = event["time"].date()
 
-    elif angle < 247.5:
-        return "Waning Gibbous"
 
-    elif angle < 292.5:
-        return "Last Quarter"
+        if event_date <= current:
 
-    elif angle < 337.5:
+            previous = event
+
+
+        elif upcoming is None:
+
+            upcoming = event
+            break
+
+
+    if previous is None:
+
         return "Waning Crescent"
 
-    else:
-        return "New Moon"
+
+    phase = previous["phase"]
+
+
+    if phase == "New Moon":
+
+        return "Waxing Crescent"
+
+
+    if phase == "First Quarter":
+
+        return "Waxing Gibbous"
+
+
+    if phase == "Full Moon":
+
+        return "Waning Gibbous"
+
+
+    if phase == "Last Quarter":
+
+        return "Waning Crescent"
+
+
+    return phase
+
 
 
 def get_illumination(angle):
 
-    illumination = (
+    import math
+
+    value = (
         1 - math.cos(
             math.radians(angle)
         )
     ) / 2
 
     return round(
-        illumination * 100
+        value * 100
     )
