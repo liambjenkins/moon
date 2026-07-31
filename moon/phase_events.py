@@ -1,6 +1,10 @@
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 from moon.astronomy import get_phase_angle
+
+
+MELBOURNE = ZoneInfo("Australia/Melbourne")
 
 
 TARGETS = {
@@ -12,6 +16,7 @@ TARGETS = {
 
 
 def normalise(angle):
+
     return angle % 360
 
 
@@ -25,46 +30,74 @@ def angular_distance(a, b):
     )
 
 
-def find_phase_event(day):
+def find_phase_events(start_date, end_date):
 
-    start = datetime(
-        day.year,
-        day.month,
-        day.day,
+    events = []
+
+    current = datetime(
+        start_date.year,
+        start_date.month,
+        start_date.day,
         tzinfo=timezone.utc,
     )
 
-    best = None
-    best_distance = 999
+    end = datetime(
+        end_date.year,
+        end_date.month,
+        end_date.day,
+        tzinfo=timezone.utc,
+    )
 
-    for minute in range(0, 1440, 30):
 
-        moment = start + timedelta(
-            minutes=minute
-        )
+    previous_angle = None
+    previous_time = None
+
+
+    while current <= end:
 
         angle = normalise(
-            get_phase_angle(moment)
+            get_phase_angle(current)
         )
 
-        for target, name in TARGETS.items():
 
-            distance = angular_distance(
-                angle,
-                target
-            )
+        if previous_angle is not None:
 
-            if distance < best_distance:
+            for target, name in TARGETS.items():
 
-                best_distance = distance
+                before = angular_distance(
+                    previous_angle,
+                    target,
+                )
 
-                best = {
-                    "phase": name,
-                    "time": moment,
-                }
+                after = angular_distance(
+                    angle,
+                    target,
+                )
 
-    if best_distance < 3:
 
-        return best
+                if after > before:
 
-    return None
+                    continue
+
+
+                if before < 2:
+
+                    events.append(
+                        {
+                            "phase": name,
+                            "time": previous_time.astimezone(
+                                MELBOURNE
+                            ),
+                        }
+                    )
+
+
+        previous_angle = angle
+        previous_time = current
+
+        current += timedelta(
+            hours=6
+        )
+
+
+    return events
