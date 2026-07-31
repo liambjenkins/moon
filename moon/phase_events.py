@@ -16,23 +16,37 @@ TARGETS = {
 
 
 def normalise(angle):
-
     return angle % 360
 
 
 def angular_distance(a, b):
 
-    diff = abs(a - b)
-
     return min(
-        diff,
-        360 - diff
+        abs(a - b),
+        360 - abs(a - b)
     )
+
+
+def crossed(previous, current, target):
+
+    previous_distance = angular_distance(
+        previous,
+        target
+    )
+
+    current_distance = angular_distance(
+        current,
+        target
+    )
+
+    return current_distance < previous_distance
+
 
 
 def find_phase_events(start_date, end_date):
 
     events = []
+
 
     current = datetime(
         start_date.year,
@@ -49,8 +63,16 @@ def find_phase_events(start_date, end_date):
     )
 
 
-    previous_angle = None
-    previous_time = None
+    previous_angle = normalise(
+        get_phase_angle(current)
+    )
+
+    previous_time = current
+
+
+    current += timedelta(
+        hours=6
+    )
 
 
     while current <= end:
@@ -60,36 +82,22 @@ def find_phase_events(start_date, end_date):
         )
 
 
-        if previous_angle is not None:
+        for target, name in TARGETS.items():
 
-            for target, name in TARGETS.items():
+            if crossed(
+                previous_angle,
+                angle,
+                target
+            ):
 
-                before = angular_distance(
-                    previous_angle,
-                    target,
+                events.append(
+                    {
+                        "phase": name,
+                        "time": current.astimezone(
+                            MELBOURNE
+                        ),
+                    }
                 )
-
-                after = angular_distance(
-                    angle,
-                    target,
-                )
-
-
-                if after > before:
-
-                    continue
-
-
-                if before < 2:
-
-                    events.append(
-                        {
-                            "phase": name,
-                            "time": previous_time.astimezone(
-                                MELBOURNE
-                            ),
-                        }
-                    )
 
 
         previous_angle = angle
