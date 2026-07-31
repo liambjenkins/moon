@@ -10,11 +10,11 @@ class MoonDay:
     illumination: int
     sign: str
 
-    moonrise: time | None
-    moonset: time | None
+    phase_time: time | None = None
 
-    phase_time: time | None
+    moonrise: time | None = None
+    moonset: time | None = None
 
-    transit_from: str | None
-    transit_to: str | None
-    transit_time: time | None
+    transit_from: str | None = None
+    transit_to: str | None = None
+    transit_time: time | None = None
