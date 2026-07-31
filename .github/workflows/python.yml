@@ -26,6 +26,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Download Skyfield ephemeris
+        run: |
+          python - <<'PY'
+          from skyfield.api import load
+          load("de421.bsp")
+          PY
+
       - name: Generate calendar
         run: |
           PYTHONPATH=. python generate.py ${{ github.event.inputs.year }}
