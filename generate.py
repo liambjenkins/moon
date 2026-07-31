@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+import sys
 
 from moon.astronomy import get_raw_moon_data
 from moon.models import MoonDay
@@ -30,6 +31,32 @@ def get_sign(longitude):
     return signs[int(longitude // 30)]
 
 
+def build_day(current):
+
+    raw = get_raw_moon_data(current)
+
+    angle = raw["angle"]
+
+    rise_set = get_rise_set(current)
+
+    phase_event = find_phase_event(current)
+
+    return MoonDay(
+        date=current,
+        phase=get_phase(angle),
+        illumination=get_illumination(angle),
+        sign=get_sign(raw["longitude"]),
+        phase_time=(
+            phase_event["time"].time()
+            if phase_event
+            and phase_event["phase"] == get_phase(angle)
+            else None
+        ),
+        moonrise=rise_set["moonrise"],
+        moonset=rise_set["moonset"],
+    )
+
+
 def build_days():
 
     start = date.fromisoformat(START_DATE)
@@ -46,48 +73,9 @@ def build_days():
 
     while current < end:
 
-        raw = get_raw_moon_data(current)
-
-        angle = raw["angle"]
-
-        if (
-            current.month == 1
-            and current.day in [2, 3, 4]
-            and current.year == 2026
-        ):
-            print(
-                "DEBUG:",
-                current,
-                "angle=",
-                angle,
-                "phase=",
-                get_phase(angle),
-                "illumination=",
-                get_illumination(angle),
-                "longitude=",
-                raw["longitude"],
-            )
-
-        rise_set = get_rise_set(current)
-
-        phase_event = find_phase_event(current)
-
-        day = MoonDay(
-            date=current,
-            phase=get_phase(angle),
-            illumination=get_illumination(angle),
-            sign=get_sign(raw["longitude"]),
-            phase_time=(
-                phase_event["time"].time()
-                if phase_event
-                and phase_event["phase"] == get_phase(angle)
-                else None
-            ),
-            moonrise=rise_set["moonrise"],
-            moonset=rise_set["moonset"],
+        days.append(
+            build_day(current)
         )
-
-        days.append(day)
 
         current += timedelta(days=1)
 
@@ -131,6 +119,29 @@ def build_events(days):
 
 if __name__ == "__main__":
 
+    if len(sys.argv) > 1:
+
+        test_date = date.fromisoformat(
+            sys.argv[1]
+        )
+
+        day = build_day(test_date)
+
+        print(day)
+
+        print()
+
+        print(format_title(day))
+
+        print()
+
+        print(
+            format_notes(day)
+        )
+
+        exit()
+
+
     days = build_days()
 
     events = build_events(days)
@@ -139,4 +150,6 @@ if __name__ == "__main__":
 
     save_feed(calendar)
 
-    print("Moon calendar generated 🌙")
+    print(
+        "Moon calendar generated 🌙"
+    )
