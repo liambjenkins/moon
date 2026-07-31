@@ -1,8 +1,11 @@
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 from skyfield.api import load
 from skyfield.framelib import ecliptic_frame
 
+
+MELBOURNE = ZoneInfo("Australia/Melbourne")
 
 ts = load.timescale()
 
@@ -14,6 +17,12 @@ sun = eph["sun"]
 
 
 def datetime_to_time(dt):
+
+    if dt.tzinfo is None:
+        dt = dt.replace(
+            tzinfo=timezone.utc
+        )
+
     return ts.from_datetime(dt)
 
 
@@ -41,27 +50,30 @@ def get_sun_longitude(t):
 
 def get_phase_angle_at(t):
 
-    moon_longitude = get_moon_longitude(t)
-
-    sun_longitude = get_sun_longitude(t)
-
     return (
-        moon_longitude
-        - sun_longitude
+        get_moon_longitude(t)
+        -
+        get_sun_longitude(t)
     ) % 360
 
 
 def get_raw_moon_data(day):
 
-    dt = datetime(
+    local_time = datetime(
         day.year,
         day.month,
         day.day,
         12,
-        tzinfo=timezone.utc,
+        tzinfo=MELBOURNE,
     )
 
-    t = datetime_to_time(dt)
+    utc_time = local_time.astimezone(
+        timezone.utc
+    )
+
+    t = datetime_to_time(
+        utc_time
+    )
 
     return {
         "angle": get_phase_angle_at(t),
@@ -71,6 +83,11 @@ def get_raw_moon_data(day):
 
 def get_phase_angle(dt):
 
-    t = datetime_to_time(dt)
+    if dt.tzinfo is None:
+        dt = dt.replace(
+            tzinfo=timezone.utc
+        )
 
-    return get_phase_angle_at(t)
+    return get_phase_angle_at(
+        datetime_to_time(dt)
+    )
