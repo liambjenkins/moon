@@ -1,7 +1,9 @@
-from icalendar import Calendar, Event
+from pathlib import Path
 
 
 def build_feed(events):
+
+    from icalendar import Calendar
 
     calendar = Calendar()
 
@@ -15,18 +17,25 @@ def build_feed(events):
         "2.0"
     )
 
-    calendar.add(
-        "X-WR-CALNAME",
-        "Moon"
-    )
-
     for event in events:
         calendar.add_component(event)
 
     return calendar
 
 
-def save_feed(calendar, filename="moon.ics"):
+def save_feed(calendar):
 
-    with open(filename, "wb") as file:
-        file.write(calendar.to_ical())
+    output = Path("Moon.ics")
+
+    with open(
+        output,
+        "wb"
+    ) as file:
+
+        file.write(
+            calendar.to_ical()
+        )
+
+    print(
+        f"Saved calendar: {output}"
+    )
