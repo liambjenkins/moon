@@ -1,9 +1,13 @@
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
+from typing import Optional
 
 
 @dataclass
 class MoonDay:
+    """
+    Represents lunar information for a single calendar day.
+    """
 
     date: date
 
@@ -13,12 +17,12 @@ class MoonDay:
 
     sign: str
 
-    moonrise: object = None
+    moonrise: Optional[datetime] = None
 
-    moonset: object = None
+    moonset: Optional[datetime] = None
 
-    phase_time: object = None
+    phase_time: Optional[datetime] = None
 
-    transit: object = None
+    transit: Optional[datetime] = None
 
-    transit_time: object = None
+    transit_time: Optional[datetime] = None
