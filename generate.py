@@ -107,6 +107,8 @@ if __name__ == "__main__":
 
     save_feed(calendar)
 
-    print(
-        "Moon calendar generated 🌙"
-    )
+for day in days:
+    if day.date.month == 7 and day.date.day == 31:
+        print(day)
+
+print("Moon calendar generated 🌙")
