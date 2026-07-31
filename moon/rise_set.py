@@ -1,21 +1,21 @@
-from skyfield.api import load, Topos
+from skyfield.api import load, wgs84
 from skyfield import almanac
 
-from moon.config import MELBOURNE
+from .config import MELBOURNE
 
 
 ts = load.timescale()
 
 eph = load("de421.bsp")
 
-earth = eph["earth"]
 moon = eph["moon"]
 
 
-location = Topos(
-    latitude_degrees=MELBOURNE.latitude,
-    longitude_degrees=MELBOURNE.longitude,
+location = wgs84.latlon(
+    MELBOURNE.latitude,
+    MELBOURNE.longitude,
 )
+
 
 
 def get_rise_set(day):
@@ -34,6 +34,7 @@ def get_rise_set(day):
         23,
     )
 
+
     t, events = almanac.find_discrete(
         start,
         end,
@@ -44,16 +45,30 @@ def get_rise_set(day):
         ),
     )
 
+
     moonrise = None
     moonset = None
 
+
     for time, event in zip(t, events):
 
-        if event == 1:
-            moonrise = time.utc_datetime()
+        local_time = (
+            time
+            .utc_datetime()
+            .replace(tzinfo=None)
+            .astimezone(MELBOURNE)
+        )
 
-        else:
-            moonset = time.utc_datetime()
+
+        if event == 1 and moonrise is None:
+
+            moonrise = local_time
+
+
+        elif event == 0 and moonset is None:
+
+            moonset = local_time
+
 
     return {
         "moonrise": moonrise,
