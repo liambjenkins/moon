@@ -20,7 +20,6 @@ def normalise(angle):
 
 
 def angular_distance(a, b):
-
     return min(
         abs(a - b),
         360 - abs(a - b)
@@ -29,24 +28,52 @@ def angular_distance(a, b):
 
 def crossed(previous, current, target):
 
-    previous_distance = angular_distance(
-        previous,
-        target
+    return (
+        angular_distance(current, target)
+        <
+        angular_distance(previous, target)
     )
 
-    current_distance = angular_distance(
-        current,
-        target
-    )
 
-    return current_distance < previous_distance
+def refine_event_time(
+    start,
+    end,
+    target
+):
+
+    for _ in range(20):
+
+        midpoint = start + (
+            end - start
+        ) / 2
+
+        start_distance = angular_distance(
+            get_phase_angle(start),
+            target
+        )
+
+        mid_distance = angular_distance(
+            get_phase_angle(midpoint),
+            target
+        )
+
+        if mid_distance < start_distance:
+            end = midpoint
+        else:
+            start = midpoint
+
+    return start + (
+        end - start
+    ) / 2
 
 
 
-def find_phase_events(start_date, end_date):
+def find_phase_events(
+    start_date,
+    end_date
+):
 
     events = []
-
 
     current = datetime(
         start_date.year,
@@ -70,12 +97,12 @@ def find_phase_events(start_date, end_date):
     previous_time = current
 
 
-    current += timedelta(
-        hours=6
-    )
+    step = timedelta(hours=6)
 
 
     while current <= end:
+
+        current += step
 
         angle = normalise(
             get_phase_angle(current)
@@ -90,10 +117,16 @@ def find_phase_events(start_date, end_date):
                 target
             ):
 
+                event_time = refine_event_time(
+                    previous_time,
+                    current,
+                    target
+                )
+
                 events.append(
                     {
                         "phase": name,
-                        "time": current.astimezone(
+                        "time": event_time.astimezone(
                             MELBOURNE
                         ),
                     }
@@ -102,10 +135,6 @@ def find_phase_events(start_date, end_date):
 
         previous_angle = angle
         previous_time = current
-
-        current += timedelta(
-            hours=6
-        )
 
 
     return events
