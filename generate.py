@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from moon.astronomy import get_raw_moon_data
 from moon.models import MoonDay
 from moon.phases import get_phase, get_illumination
-from moon.phase_events import find_phase_time
+from moon.phase_events import find_phase_event
 from moon.rise_set import get_rise_set
 from moon.feed import build_feed, save_feed
 from moon.formatter import format_title, format_notes
@@ -50,27 +50,32 @@ def build_days():
 
         angle = raw["angle"]
 
+        phase_event = find_phase_event(current)
+
         rise_set = get_rise_set(current)
-
-        phase_event = find_phase_time(current)
-
-        phase = (
-            phase_event["phase"]
-            if phase_event
-            else get_phase(angle)
-        )
 
         day = MoonDay(
             date=current,
-            phase=phase,
+
+            # daily phase only
+            phase=get_phase(angle),
+
             illumination=get_illumination(angle),
-            sign=get_sign(raw["longitude"]),
+
+            sign=get_sign(
+                raw["longitude"]
+            ),
+
+            # only populated on exact phase day
             phase_time=(
                 phase_event["time"].time()
                 if phase_event
+                and phase_event["phase"] == get_phase(angle)
                 else None
             ),
+
             moonrise=rise_set["moonrise"],
+
             moonset=rise_set["moonset"],
         )
 
