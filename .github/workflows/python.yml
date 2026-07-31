@@ -6,7 +6,7 @@ on:
       year:
         description: "Calendar year"
         required: true
-        default: "2027"
+        default: "2026"
 
 jobs:
   build:
@@ -26,7 +26,7 @@ jobs:
 
       - name: Generate calendar
         run: |
-          python generate.py ${{ github.event.inputs.year }}
+          PYTHONPATH=. python generate.py ${{ github.event.inputs.year }}
 
       - name: Upload calendar
         uses: actions/upload-artifact@v4
