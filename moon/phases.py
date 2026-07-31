@@ -1,16 +1,6 @@
-from math import cos, radians
-
-
-def illumination(angle):
-
-    fraction = (
-        1 - cos(radians(angle))
-    ) / 2
-
-    return round(fraction * 100)
-
-
 def phase_name(angle):
+
+    angle = angle % 360
 
     if angle < 22.5:
         return "New Moon"
@@ -37,3 +27,14 @@ def phase_name(angle):
         return "Balsamic Moon"
 
     return "New Moon"
+
+
+def illumination(angle):
+
+    import math
+
+    fraction = (
+        1 - math.cos(math.radians(angle))
+    ) / 2
+
+    return round(fraction * 100)
