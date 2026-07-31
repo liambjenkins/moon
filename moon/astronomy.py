@@ -5,7 +5,7 @@ from skyfield.api import load
 from skyfield.framelib import ecliptic_frame
 
 
-MELBOURNE = ZoneInfo("Australia/Melbourne")
+from .config import MELBOURNE_TZ
 
 ts = load.timescale()
 
@@ -72,7 +72,7 @@ def get_raw_moon_data(day):
         day.month,
         day.day,
         12,
-        tzinfo=MELBOURNE,
+        tzinfo=MELBOURNE_TZ,
     )
 
     utc_time = local_time.astimezone(
