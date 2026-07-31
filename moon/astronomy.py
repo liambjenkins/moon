@@ -6,9 +6,7 @@ from skyfield.framelib import ecliptic_frame
 
 ts = load.timescale()
 
-loader = load
-
-eph = loader("de421.bsp")
+eph = load("de421.bsp")
 
 earth = eph["earth"]
 moon = eph["moon"]
@@ -19,18 +17,7 @@ def datetime_to_time(dt):
     return ts.from_datetime(dt)
 
 
-def melbourne_day_to_datetime(day):
-
-    return datetime(
-        day.year,
-        day.month,
-        day.day,
-        12,
-        tzinfo=timezone.utc,
-    )
-
-
-def moon_sun_angle(t):
+def get_moon_sun_angle(t):
 
     moon_position = earth.at(t).observe(moon)
     sun_position = earth.at(t).observe(sun)
@@ -40,7 +27,7 @@ def moon_sun_angle(t):
     ).degrees
 
 
-def moon_ecliptic_longitude(t):
+def get_moon_longitude(t):
 
     position = earth.at(t).observe(moon)
 
@@ -51,27 +38,28 @@ def moon_ecliptic_longitude(t):
     return longitude.degrees % 360
 
 
-def get_illumination(angle):
-
-    import math
-
-    illuminated = (
-        1 - math.cos(math.radians(angle))
-    ) / 2
-
-    return round(illuminated * 100)
-
-
 def get_raw_moon_data(day):
 
-    dt = melbourne_day_to_datetime(day)
+    dt = datetime(
+        day.year,
+        day.month,
+        day.day,
+        12,
+        tzinfo=timezone.utc,
+    )
 
     t = datetime_to_time(dt)
 
-    angle = moon_sun_angle(t)
+    angle = get_moon_sun_angle(t)
 
     return {
         "angle": angle,
-        "illumination": get_illumination(angle),
-        "longitude": moon_ecliptic_longitude(t),
+        "longitude": get_moon_longitude(t),
     }
+
+
+def get_phase_angle(dt):
+
+    t = datetime_to_time(dt)
+
+    return get_moon_sun_angle(t)
