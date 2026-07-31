@@ -1,6 +1,10 @@
+import math
+
+
 def get_phase(angle):
 
     angle = angle % 360
+
 
     if angle < 22.5:
         return "New Moon"
@@ -31,8 +35,6 @@ def get_phase(angle):
 
 
 def get_illumination(angle):
-
-    import math
 
     illumination = (
         1 - math.cos(
