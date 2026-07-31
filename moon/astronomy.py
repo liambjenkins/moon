@@ -17,18 +17,20 @@ sun = eph["sun"]
 
 
 def datetime_to_time(dt):
-
     if dt.tzinfo is None:
-        dt = dt.replace(
-            tzinfo=timezone.utc
-        )
+        dt = dt.replace(tzinfo=timezone.utc)
 
     return ts.from_datetime(dt)
 
 
 def get_moon_longitude(t):
 
-    position = earth.at(t).observe(moon)
+    position = (
+        earth
+        .at(t)
+        .observe(moon)
+        .apparent()
+    )
 
     _, longitude, _ = position.frame_latlon(
         ecliptic_frame
@@ -39,7 +41,12 @@ def get_moon_longitude(t):
 
 def get_sun_longitude(t):
 
-    position = earth.at(t).observe(sun)
+    position = (
+        earth
+        .at(t)
+        .observe(sun)
+        .apparent()
+    )
 
     _, longitude, _ = position.frame_latlon(
         ecliptic_frame
@@ -50,10 +57,11 @@ def get_sun_longitude(t):
 
 def get_phase_angle_at(t):
 
+    moon_lon = get_moon_longitude(t)
+    sun_lon = get_sun_longitude(t)
+
     return (
-        get_moon_longitude(t)
-        -
-        get_sun_longitude(t)
+        moon_lon - sun_lon
     ) % 360
 
 
@@ -75,9 +83,16 @@ def get_raw_moon_data(day):
         utc_time
     )
 
+    angle = get_phase_angle_at(t)
+
     return {
-        "angle": get_phase_angle_at(t),
+        "angle": angle,
         "longitude": get_moon_longitude(t),
+        "illumination": round(
+            (1 - __import__("math").cos(
+                __import__("math").radians(angle)
+            )) / 2 * 100
+        )
     }
 
 
