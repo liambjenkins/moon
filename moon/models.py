@@ -4,6 +4,7 @@ from datetime import date, time
 
 @dataclass
 class MoonDay:
+
     date: date
 
     phase: str
