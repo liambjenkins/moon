@@ -1,1 +1,5 @@
-icalendar
+icalendar==6.1.0
+skyfield==1.49
+skyfield-data==6.0.0
+jplephem==2.22
+pytz==2024.2
