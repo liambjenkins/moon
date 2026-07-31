@@ -19,11 +19,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-- name: Run test
-  run: python generate.py
+      - name: Run test
+        run: python generate.py
 
-- name: Upload Moon calendar
-  uses: actions/upload-artifact@v4
-  with:
-    name: Moon-calendar
-    path: Moon.ics
+      - name: Upload Moon calendar
+        uses: actions/upload-artifact@v4
+        with:
+          name: Moon-calendar
+          path: Moon.ics
