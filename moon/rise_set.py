@@ -1,7 +1,6 @@
-from datetime import datetime, timezone
-
-from skyfield.api import load
+from skyfield.api import load, Topos
 from skyfield import almanac
+
 from moon.config import MELBOURNE
 
 
@@ -13,28 +12,26 @@ earth = eph["earth"]
 moon = eph["moon"]
 
 
+observer = earth + Topos(
+    latitude_degrees=MELBOURNE.latitude,
+    longitude_degrees=MELBOURNE.longitude,
+)
+
+
 def get_rise_set(day):
 
     start = ts.utc(
         day.year,
         day.month,
         day.day,
-        0
+        0,
     )
 
     end = ts.utc(
         day.year,
         day.month,
         day.day,
-        23
-    )
-
-    observer = (
-        earth
-        + earth.topos(
-            latitude_degrees=MELBOURNE.latitude,
-            longitude_degrees=MELBOURNE.longitude
-        )
+        23,
     )
 
     t, events = almanac.find_discrete(
@@ -43,8 +40,8 @@ def get_rise_set(day):
         almanac.risings_and_settings(
             eph,
             moon,
-            observer
-        )
+            observer,
+        ),
     )
 
     moonrise = None
@@ -52,14 +49,11 @@ def get_rise_set(day):
 
     for time, event in zip(t, events):
 
-        dt = time.utc_datetime()
-
         if event == 1:
-            moonrise = dt
+            moonrise = time.utc_datetime()
 
         else:
-            moonset = dt
-
+            moonset = time.utc_datetime()
 
     return {
         "moonrise": moonrise,
