@@ -1,15 +1,15 @@
 from pathlib import Path
 
+from icalendar import Calendar
+
 
 def build_feed(events):
-
-    from icalendar import Calendar
 
     calendar = Calendar()
 
     calendar.add(
         "prodid",
-        "-//Moon Calendar//"
+        "-//Moon Calendar//Lunar Engine//"
     )
 
     calendar.add(
@@ -17,15 +17,35 @@ def build_feed(events):
         "2.0"
     )
 
+    calendar.add(
+        "X-WR-CALNAME",
+        "Moon Calendar"
+    )
+
+    calendar.add(
+        "X-WR-TIMEZONE",
+        "Australia/Melbourne"
+    )
+
+
     for event in events:
-        calendar.add_component(event)
+
+        calendar.add_component(
+            event
+        )
+
 
     return calendar
 
 
-def save_feed(calendar):
 
-    output = Path("Moon.ics")
+def save_feed(
+    calendar,
+    filename="Moon.ics"
+):
+
+    output = Path(filename)
+
 
     with open(
         output,
@@ -36,6 +56,10 @@ def save_feed(calendar):
             calendar.to_ical()
         )
 
+
     print(
         f"Saved calendar: {output}"
     )
+
+
+    return output
