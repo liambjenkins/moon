@@ -46,10 +46,18 @@ def build_day(current, phase_events):
         current
     )
 
+    previous_day = current - timedelta(
+        days=1
+    )
+
+    previous_raw = get_raw_moon_data(
+        previous_day
+    )
+
     transit = get_transit(
-    current_date=current,
-    current_longitude=raw["longitude"]
-)
+        previous_raw["longitude"],
+        raw["longitude"],
+    )
 
     return MoonDay(
         date=current,
