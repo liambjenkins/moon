@@ -1,4 +1,4 @@
-from .models import MoonDay
+from models import MoonDay
 
 
 def format_title(day: MoonDay) -> str:
