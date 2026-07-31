@@ -1,8 +1,28 @@
-def phase_name(angle):
+from datetime import datetime, timedelta, timezone
 
-    angle = angle % 360
 
-    if angle < 22.5:
+MAJOR_PHASES = {
+    0: "New Moon",
+    90: "First Quarter",
+    180: "Full Moon",
+    270: "Last Quarter",
+}
+
+
+def normalise_angle(angle):
+    return angle % 360
+
+
+def angular_distance(a, b):
+    diff = abs(a - b)
+    return min(diff, 360 - diff)
+
+
+def get_phase(angle):
+
+    angle = normalise_angle(angle)
+
+    if angle < 22.5 or angle >= 337.5:
         return "New Moon"
 
     if angle < 67.5:
@@ -23,10 +43,7 @@ def phase_name(angle):
     if angle < 292.5:
         return "Last Quarter"
 
-    if angle < 337.5:
-        return "Balsamic Moon"
-
-    return "New Moon"
+    return "Balsamic Moon"
 
 
 def illumination(angle):
@@ -38,3 +55,15 @@ def illumination(angle):
     ) / 2
 
     return round(fraction * 100)
+
+
+def is_major_phase_day(angle):
+
+    angle = normalise_angle(angle)
+
+    for phase_angle in MAJOR_PHASES:
+
+        if angular_distance(angle, phase_angle) < 2:
+            return MAJOR_PHASES[phase_angle]
+
+    return None
