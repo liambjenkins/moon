@@ -12,7 +12,7 @@ earth = eph["earth"]
 moon = eph["moon"]
 
 
-observer = earth + Topos(
+location = Topos(
     latitude_degrees=MELBOURNE.latitude,
     longitude_degrees=MELBOURNE.longitude,
 )
@@ -40,7 +40,7 @@ def get_rise_set(day):
         almanac.risings_and_settings(
             eph,
             moon,
-            observer,
+            location,
         ),
     )
 
