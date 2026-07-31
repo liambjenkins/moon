@@ -1,71 +1,52 @@
-from icalendar import Calendar, Event
-from datetime import datetime, date
-from pathlib import Path
+import sys
+from datetime import date, timedelta
+
+from moon.astronomy import get_moon_data
+from moon.models import MoonDay
+from moon.calendar import build_calendar, save_calendar
 
 
-CALENDAR_NAME = "Moon"
+def build_year(year):
+
+    days = []
+
+    current = date(year, 1, 1)
+    end = date(year, 12, 31)
+
+    while current <= end:
+
+        data = get_moon_data(current)
+
+        days.append(
+            MoonDay(
+                date=current,
+                phase=data["phase"],
+                illumination=data["illumination"],
+                sign=data["sign"],
+                moonrise=None,
+                moonset=None,
+                phase_time=None,
+                transit_from=None,
+                transit_to=None,
+                transit_time=None,
+            )
+        )
+
+        current += timedelta(days=1)
+
+    return days
 
 
-def create_calendar():
-    cal = Calendar()
+if __name__ == "__main__":
 
-    cal.add("prodid", "-//Moon Calendar//OpenAI//")
-    cal.add("version", "2.0")
-    cal.add("X-WR-CALNAME", CALENDAR_NAME)
-    cal.add("X-WR-TIMEZONE", "Australia/Melbourne")
+    year = int(sys.argv[1])
 
-    event = Event()
+    days = build_year(year)
 
-    event.add(
-        "summary",
-        "New Moon in Leo"
+    calendar = build_calendar(days)
+
+    save_calendar(calendar)
+
+    print(
+        f"Moon calendar generated for {year} 🌙"
     )
-
-    event.add(
-        "dtstart",
-        date(2027, 8, 2)
-    )
-
-    event.add(
-        "dtend",
-        date(2027, 8, 3)
-    )
-
-    event.add(
-        "description",
-        """Lunar phase: New Moon
-
-Illumination: 0%
-
-Moon sign: Leo
-
-Location: Melbourne, Australia
-Timezone: Australia/Melbourne
-
-Exact new moon:
-2 August 2027"""
-    )
-
-    event.add(
-        "uid",
-        "moon-test-event-001@moon-calendar"
-    )
-
-    event.add(
-        "status",
-        "CONFIRMED"
-    )
-
-    cal.add_component(event)
-
-    return cal
-
-
-calendar = create_calendar()
-
-output = Path("Moon.ics")
-
-with open(output, "wb") as file:
-    file.write(calendar.to_ical())
-
-print("Moon.ics created successfully 🌙")
