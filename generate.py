@@ -8,7 +8,6 @@ from moon.phase_events import find_phase_event
 from moon.rise_set import get_rise_set
 from moon.feed import build_feed, save_feed
 from moon.formatter import format_title, format_notes
-from moon.config import START_DATE, YEARS_FORWARD
 
 
 def get_sign(longitude):
@@ -57,19 +56,13 @@ def build_day(current):
     )
 
 
-def build_days():
+def build_days(year):
 
-    start = date.fromisoformat(START_DATE)
+    current = date(year, 1, 1)
 
-    end = date(
-        start.year + YEARS_FORWARD,
-        start.month,
-        start.day,
-    )
+    end = date(year + 1, 1, 1)
 
     days = []
-
-    current = start
 
     while current < end:
 
@@ -119,30 +112,11 @@ def build_events(days):
 
 if __name__ == "__main__":
 
-    if len(sys.argv) > 1:
+    year = int(
+        sys.argv[1]
+    )
 
-        test_date = date.fromisoformat(
-            sys.argv[1]
-        )
-
-        day = build_day(test_date)
-
-        print(day)
-
-        print()
-
-        print(format_title(day))
-
-        print()
-
-        print(
-            format_notes(day)
-        )
-
-        exit()
-
-
-    days = build_days()
+    days = build_days(year)
 
     events = build_events(days)
 
@@ -151,5 +125,5 @@ if __name__ == "__main__":
     save_feed(calendar)
 
     print(
-        "Moon calendar generated 🌙"
+        f"Moon calendar generated for {year} 🌙"
     )
