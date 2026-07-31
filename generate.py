@@ -37,10 +37,7 @@ def build_day(current, phase_events):
 
     raw = get_raw_moon_data(current)
 
-    phase = get_phase_from_events(
-        current,
-        phase_events,
-    )
+    phase = get_phase(raw["angle"])
 
     rise_set = get_rise_set(
         current
