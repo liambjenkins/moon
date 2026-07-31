@@ -1,1 +1,3 @@
-# Moon package
+"""
+Moon lunar calendar engine.
+"""
