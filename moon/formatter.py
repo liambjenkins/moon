@@ -59,7 +59,19 @@ def format_notes(day: MoonDay):
             f"Moonset: {format_time(day.moonset)}"
         )
 
+    
+    if day.transit:
 
+    lines.append("")
+
+    lines.append(
+        f"Transit: "
+        f"{day.transit['from']} → "
+        f"{day.transit['to']} "
+        f"({format_time(day.transit_time) if day.transit_time else ''})"
+    )
+
+    
     if day.transit_time:
 
         lines.append("")
