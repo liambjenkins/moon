@@ -2,20 +2,17 @@ name: Moon
 
 on:
   workflow_dispatch:
-    inputs:
-      year:
-        description: "Calendar year"
-        required: true
-        default: "2026"
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
@@ -24,12 +21,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Generate calendar
+      - name: Generate Moon calendar
         run: |
-          PYTHONPATH=. python generate.py ${{ github.event.inputs.year }}
+          PYTHONPATH=. python generate.py
 
       - name: Upload calendar
         uses: actions/upload-artifact@v4
         with:
-          name: Moon-${{ github.event.inputs.year }}
-          path: Moon.ics
+          name: Moon-calendar
+          path: moon.ics
