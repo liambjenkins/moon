@@ -19,42 +19,60 @@ def normalise(angle):
     return angle % 360
 
 
-def angular_distance(a, b):
-    return min(
-        abs(a - b),
-        360 - abs(a - b)
-    )
+def forward_angle_difference(start, end):
+    """
+    Returns clockwise movement from start to end.
+    Example:
+    350 -> 10 = 20 degrees
+    """
+
+    return (end - start) % 360
 
 
 def crossed(previous, current, target):
+    """
+    Checks whether the phase angle crossed a target
+    between two observations.
+    """
 
-    return (
-        angular_distance(current, target)
-        <
-        angular_distance(previous, target)
+    movement = forward_angle_difference(
+        previous,
+        current,
     )
+
+    distance = forward_angle_difference(
+        previous,
+        target,
+    )
+
+    return distance <= movement
+
 
 
 def refine_event_time(
     start,
     end,
-    target
+    target,
 ):
+    """
+    Binary search the exact moment
+    the phase angle crosses target.
+    """
 
-    for _ in range(20):
+    for _ in range(30):
 
         midpoint = start + (
             end - start
         ) / 2
 
-        start_distance = angular_distance(
+        start_distance = forward_angle_difference(
             get_phase_angle(start),
-            target
+            target,
         )
 
-        mid_distance = angular_distance(
+        mid_distance = forward_angle_difference(
             get_phase_angle(midpoint),
-            target
+            target,
         )
 
         if mid_distance < start_distance:
@@ -70,7 +88,7 @@ def refine_event_time(
 
 def find_phase_events(
     start_date,
-    end_date
+    end_date,
 ):
 
     events = []
@@ -90,21 +108,21 @@ def find_phase_events(
     )
 
 
+    previous_time = current
+
     previous_angle = normalise(
         get_phase_angle(current)
     )
-
-    previous_time = current
 
 
     step = timedelta(hours=6)
 
 
-    while current <= end:
+    while current < end:
 
         current += step
 
-        angle = normalise(
+        current_angle = normalise(
             get_phase_angle(current)
         )
 
@@ -113,14 +131,14 @@ def find_phase_events(
 
             if crossed(
                 previous_angle,
-                angle,
-                target
+                current_angle,
+                target,
             ):
 
                 event_time = refine_event_time(
                     previous_time,
                     current,
-                    target
+                    target,
                 )
 
                 events.append(
@@ -133,8 +151,8 @@ def find_phase_events(
                 )
 
 
-        previous_angle = angle
         previous_time = current
+        previous_angle = current_angle
 
 
     return events
