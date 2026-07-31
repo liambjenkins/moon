@@ -1,7 +1,7 @@
 from skyfield.api import load, wgs84
 from skyfield import almanac
 
-from .config import MELBOURNE
+from .config import MELBOURNE, MELBOURNE_TZ
 
 
 ts = load.timescale()
@@ -56,7 +56,7 @@ def get_rise_set(day):
             time
             .utc_datetime()
             .replace(tzinfo=None)
-            .astimezone(MELBOURNE)
+            .astimezone(MELBOURNE_TZ)
         )
 
 
