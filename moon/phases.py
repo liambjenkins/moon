@@ -1,45 +1,60 @@
 from math import cos, radians
 
 
-PHASES = [
-    (22.5, "New Moon"),
-    (67.5, "Waxing Crescent"),
-    (112.5, "First Quarter"),
-    (157.5, "Waxing Gibbous"),
-    (202.5, "Full Moon"),
-    (247.5, "Waning Gibbous"),
-    (292.5, "Last Quarter"),
-    (337.5, "Waning Crescent"),
-    (360, "Balsamic Moon"),
-]
-
-
 def get_phase(angle):
-    """
-    Convert lunar elongation angle into a named moon phase.
-    Angle: degrees between 0-360.
-    """
 
-    angle %= 360
+    angle = angle % 360
 
-    for threshold, phase in PHASES:
-        if angle < threshold:
-            return phase
 
-    return "New Moon"
+    # Exact lunar turning points
+    # These get their own single-day labels
+
+    if angle < 6 or angle >= 354:
+        return "New Moon"
+
+
+    if 84 <= angle <= 96:
+        return "First Quarter"
+
+
+    if 174 <= angle <= 186:
+        return "Full Moon"
+
+
+    if 264 <= angle <= 276:
+        return "Last Quarter"
+
+
+    # Transitional phases
+
+    if angle < 90:
+        return "Waxing Crescent"
+
+
+    if angle < 180:
+        return "Waxing Gibbous"
+
+
+    if angle < 270:
+        return "Waning Gibbous"
+
+
+    if angle < 315:
+        return "Waning Crescent"
+
+
+    return "Balsamic Moon"
+
 
 
 def get_illumination(angle):
-    """
-    Calculate illuminated fraction as a percentage.
 
-    Angle should be the Sun-Moon elongation:
-    0° = New Moon
-    180° = Full Moon
-    """
+    value = (
+        1 - cos(
+            radians(angle)
+        )
+    ) / 2
 
-    angle %= 360
-
-    value = (1 - cos(radians(angle))) / 2
-
-    return round(value * 100)
+    return round(
+        value * 100
+    )
