@@ -1,0 +1,16 @@
+calendar_name: Moon
+
+location:
+  name: Melbourne
+  timezone: Australia/Melbourne
+
+title_format: "{phase} in {sign}"
+
+dominant_energy: true
+
+include:
+  illumination: true
+  moonrise: true
+  moonset: true
+  sign_changes: true
+  exact_phase_times: true
