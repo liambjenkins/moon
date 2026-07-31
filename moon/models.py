@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import date, time
+from datetime import date
 
 
 @dataclass
@@ -8,14 +8,15 @@ class MoonDay:
     date: date
 
     phase: str
+
     illumination: int
+
     sign: str
 
-    phase_time: time | None = None
+    moonrise: object = None
 
-    moonrise: time | None = None
-    moonset: time | None = None
+    moonset: object = None
 
-    transit_from: str | None = None
-    transit_to: str | None = None
-    transit_time: time | None = None
+    phase_time: object = None
+
+    transit: object = None
