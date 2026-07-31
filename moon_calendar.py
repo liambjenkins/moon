@@ -2,8 +2,8 @@ from icalendar import Calendar, Event
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from .models import MoonDay
-from .formatter import format_title, format_notes
+from models import MoonDay
+from formatter import format_title, format_notes
 
 
 def build_calendar(days: list[MoonDay]):
