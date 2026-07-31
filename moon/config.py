@@ -1,12 +1,18 @@
 from dataclasses import dataclass
+from zoneinfo import ZoneInfo
 
 
 @dataclass(frozen=True)
 class Location:
+
     name: str
+
     latitude: float
+
     longitude: float
+
     timezone: str
+
 
 
 MELBOURNE = Location(
@@ -17,5 +23,11 @@ MELBOURNE = Location(
 )
 
 
+MELBOURNE_TZ = ZoneInfo(
+    MELBOURNE.timezone
+)
+
+
 START_DATE = "2026-01-01"
+
 YEARS_FORWARD = 5
