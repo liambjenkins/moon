@@ -22,8 +22,6 @@ def normalise(angle):
 def forward_angle_difference(start, end):
     """
     Returns clockwise movement from start to end.
-    Example:
-    350 -> 10 = 20 degrees
     """
 
     return (end - start) % 360
@@ -31,8 +29,8 @@ def forward_angle_difference(start, end):
 
 def crossed(previous, current, target):
     """
-    Checks whether the phase angle crossed a target
-    between two observations.
+    Checks whether the lunar phase angle crossed
+    a target angle between two observations.
     """
 
     movement = forward_angle_difference(
@@ -55,8 +53,7 @@ def refine_event_time(
     target,
 ):
     """
-    Binary search the exact moment
-    the phase angle crosses target.
+    Binary search for the exact phase transition.
     """
 
     for _ in range(30):
@@ -83,6 +80,40 @@ def refine_event_time(
     return start + (
         end - start
     ) / 2
+
+
+
+def add_event(events, event):
+    """
+    Prevent duplicate phase events.
+
+    Two events are considered duplicates if:
+    - they have the same phase name
+    - they occur within 10 minutes
+    """
+
+    for existing in events:
+
+        same_phase = (
+            existing["phase"]
+            ==
+            event["phase"]
+        )
+
+        close_time = (
+            abs(
+                existing["time"]
+                -
+                event["time"]
+            )
+            <
+            timedelta(minutes=10)
+        )
+
+        if same_phase and close_time:
+            return
+
+    events.append(event)
 
 
 
@@ -141,7 +172,8 @@ def find_phase_events(
                     target,
                 )
 
-                events.append(
+                add_event(
+                    events,
                     {
                         "phase": name,
                         "time": event_time.astimezone(
@@ -155,4 +187,7 @@ def find_phase_events(
         previous_angle = current_angle
 
 
-    return events
+    return sorted(
+        events,
+        key=lambda event: event["time"]
+    )
