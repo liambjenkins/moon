@@ -1,52 +1,112 @@
-import sys
 from datetime import date, timedelta
 
-from astronomy import get_moon_data
-from models import MoonDay
-from moon_calendar import build_calendar, save_calendar
+from moon.astronomy import get_raw_moon_data
+from moon.models import MoonDay
+from moon.phases import phase_name, illumination
+from moon.feed import build_feed, save_feed
+from moon.formatter import format_title, format_notes
+from moon.config import START_DATE, YEARS_FORWARD
 
 
-def build_year(year):
+def get_sign(longitude):
+
+    signs = [
+        "Aries",
+        "Taurus",
+        "Gemini",
+        "Cancer",
+        "Leo",
+        "Virgo",
+        "Libra",
+        "Scorpio",
+        "Sagittarius",
+        "Capricorn",
+        "Aquarius",
+        "Pisces",
+    ]
+
+    return signs[int(longitude // 30)]
+
+
+def build_days():
+
+    start = date.fromisoformat(START_DATE)
+
+    end = date(
+        start.year + YEARS_FORWARD,
+        start.month,
+        start.day,
+    )
 
     days = []
 
-    current = date(year, 1, 1)
-    end = date(year, 12, 31)
+    current = start
 
-    while current <= end:
+    while current < end:
 
-        data = get_moon_data(current)
+        raw = get_raw_moon_data(current)
 
-        days.append(
-            MoonDay(
-                date=current,
-                phase=data["phase"],
-                illumination=data["illumination"],
-                sign=data["sign"],
-                moonrise=None,
-                moonset=None,
-                phase_time=None,
-                transit_from=None,
-                transit_to=None,
-                transit_time=None,
-            )
+        angle = raw["angle"]
+
+        day = MoonDay(
+            date=current,
+            phase=phase_name(angle),
+            illumination=illumination(angle),
+            sign=get_sign(raw["longitude"]),
         )
+
+        days.append(day)
 
         current += timedelta(days=1)
 
     return days
 
 
+def build_events(days):
+
+    from icalendar import Event
+
+    events = []
+
+    for day in days:
+
+        event = Event()
+
+        event.add(
+            "summary",
+            format_title(day)
+        )
+
+        event.add(
+            "dtstart",
+            day.date
+        )
+
+        event.add(
+            "description",
+            format_notes(day)
+        )
+
+        event.add(
+            "uid",
+            f"moon-{day.date}"
+        )
+
+        events.append(event)
+
+    return events
+
+
 if __name__ == "__main__":
 
-    year = int(sys.argv[1])
+    days = build_days()
 
-    days = build_year(year)
+    events = build_events(days)
 
-    calendar = build_calendar(days)
+    calendar = build_feed(events)
 
-    save_calendar(calendar)
+    save_feed(calendar)
 
     print(
-        f"Moon calendar generated for {year} 🌙"
+        "Moon calendar generated 🌙"
     )
