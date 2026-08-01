@@ -5,10 +5,10 @@ from moon.astronomy import get_raw_moon_data
 from moon.models import MoonDay
 from moon.phases import get_illumination
 from moon.phase_events import find_phase_events
+from moon.sign_events import find_sign_events
 from moon.rise_set import get_rise_set
 from moon.feed import build_feed, save_feed
 from moon.formatter import format_title, format_notes
-from moon.transits import get_transit
 
 
 def get_sign(longitude):
@@ -31,6 +31,7 @@ def get_sign(longitude):
     return signs[
         int(longitude // 30)
     ]
+
 
 
 def get_daily_phase(
@@ -71,10 +72,23 @@ def get_daily_phase(
 
 
 
+def get_daily_sign(
+    current,
+    sign_lookup,
+):
+
+    return sign_lookup.get(
+        current,
+        "Unknown"
+    )
+
+
+
 def build_day(
     current,
     phase_lookup,
     previous_phase_lookup,
+    sign_lookup,
 ):
 
     raw = get_raw_moon_data(
@@ -94,22 +108,6 @@ def build_day(
     )
 
 
-    previous_day = (
-        current - timedelta(days=1)
-    )
-
-
-    previous_raw = get_raw_moon_data(
-        previous_day
-    )
-
-
-    transit = get_transit(
-        previous_raw["longitude"],
-        raw["longitude"],
-    )
-
-
     return MoonDay(
         date=current,
 
@@ -119,8 +117,9 @@ def build_day(
             raw["angle"]
         ),
 
-        sign=get_sign(
-            raw["longitude"]
+        sign=get_daily_sign(
+            current,
+            sign_lookup,
         ),
 
         moonrise=rise_set.get(
@@ -130,8 +129,6 @@ def build_day(
         moonset=rise_set.get(
             "moonset"
         ),
-
-        transit=transit,
     )
 
 
@@ -151,6 +148,8 @@ def build_days(year):
     )
 
 
+    # PHASE EVENTS
+
     phase_events = find_phase_events(
         start,
         end
@@ -164,6 +163,7 @@ def build_days(year):
         phase_lookup[
             event["time"].date()
         ] = event["phase"]
+
 
 
     previous_phase_lookup = {}
@@ -185,6 +185,53 @@ def build_days(year):
         )
 
 
+
+    # SIGN EVENTS
+
+    sign_events = find_sign_events(
+        start,
+        end
+    )
+
+
+    sign_lookup = {}
+
+
+    first_longitude = get_raw_moon_data(
+        start
+    )["longitude"]
+
+
+    last_sign = get_sign(
+        first_longitude
+    )
+
+
+    current = start
+
+
+    while current < end:
+
+        for event in sign_events:
+
+            if (
+                event["time"].date()
+                == current
+            ):
+                last_sign = event["to"]
+
+
+        sign_lookup[current] = last_sign
+
+
+        current += timedelta(
+            days=1
+        )
+
+
+
+    # BUILD DAYS
+
     days = []
 
     current = start
@@ -197,6 +244,7 @@ def build_days(year):
                 current,
                 phase_lookup,
                 previous_phase_lookup,
+                sign_lookup,
             )
         )
 
