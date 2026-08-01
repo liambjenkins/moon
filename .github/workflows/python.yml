@@ -6,10 +6,18 @@ on:
       - main
 
   workflow_dispatch:
+    inputs:
+      year:
+        description: "Calendar year"
+        required: true
+        default: "2026"
+
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
+
 
     steps:
 
@@ -35,7 +43,7 @@ jobs:
 
       - name: Generate calendar
         run: |
-          PYTHONPATH=. python generate.py 2026
+          PYTHONPATH=. python generate.py ${{ github.event.inputs.year || '2026' }}
 
 
       - name: Upload calendars
