@@ -1,11 +1,10 @@
 from datetime import datetime, timezone
-from zoneinfo import ZoneInfo
-
+from math import cos, radians
 from skyfield.api import load
 from skyfield.framelib import ecliptic_frame
 
-
 from .config import MELBOURNE_TZ
+
 
 ts = load.timescale()
 
@@ -16,11 +15,29 @@ moon = eph["moon"]
 sun = eph["sun"]
 
 
+
 def datetime_to_time(dt):
+
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
+        dt = dt.replace(
+            tzinfo=timezone.utc
+        )
 
     return ts.from_datetime(dt)
+
+
+
+def prepare_datetime(dt):
+
+    if dt.tzinfo is None:
+        dt = dt.replace(
+            tzinfo=timezone.utc
+        )
+
+    return dt.astimezone(
+        timezone.utc
+    )
+
 
 
 def get_moon_longitude(t):
@@ -39,6 +56,7 @@ def get_moon_longitude(t):
     return longitude.degrees % 360
 
 
+
 def get_sun_longitude(t):
 
     position = (
@@ -55,14 +73,45 @@ def get_sun_longitude(t):
     return longitude.degrees % 360
 
 
+
 def get_phase_angle_at(t):
 
-    moon_lon = get_moon_longitude(t)
-    sun_lon = get_sun_longitude(t)
-
     return (
-        moon_lon - sun_lon
+        get_moon_longitude(t)
+        -
+        get_sun_longitude(t)
     ) % 360
+
+
+
+def get_phase_angle(dt):
+
+    dt = prepare_datetime(dt)
+
+    return get_phase_angle_at(
+        datetime_to_time(dt)
+    )
+
+
+
+def get_moon_longitude_at(dt):
+
+    dt = prepare_datetime(dt)
+
+    return get_moon_longitude(
+        datetime_to_time(dt)
+    )
+
+
+
+def get_sun_longitude_at(dt):
+
+    dt = prepare_datetime(dt)
+
+    return get_sun_longitude(
+        datetime_to_time(dt)
+    )
+
 
 
 def get_raw_moon_data(day):
@@ -71,50 +120,40 @@ def get_raw_moon_data(day):
         day.year,
         day.month,
         day.day,
-        12,
+        0,
+        1,
         tzinfo=MELBOURNE_TZ,
     )
 
-    utc_time = local_time.astimezone(
-        timezone.utc
-    )
 
     t = datetime_to_time(
-        utc_time
+        local_time.astimezone(
+            timezone.utc
+        )
     )
+
 
     angle = get_phase_angle_at(t)
 
+
     return {
+
         "angle": angle,
+
         "longitude": get_moon_longitude(t),
+
         "illumination": round(
-            (1 - __import__("math").cos(
-                __import__("math").radians(angle)
-            )) / 2 * 100
-        )
+            (
+                1
+                -
+                cos(
+                    radians(angle)
+                )
+            )
+            /
+            2
+            *
+            100
+        ),
+
     }
-
-
-def get_phase_angle(dt):
-
-    if dt.tzinfo is None:
-        dt = dt.replace(
-            tzinfo=timezone.utc
-        )
-
-    return get_phase_angle_at(
-        datetime_to_time(dt)
-    )
-
-
-def get_moon_longitude_at(dt):
-
-    if dt.tzinfo is None:
-        dt = dt.replace(
-            tzinfo=timezone.utc
-        )
-
-    return get_moon_longitude(
-        datetime_to_time(dt)
-    )
