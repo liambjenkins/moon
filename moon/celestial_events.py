@@ -1,7 +1,11 @@
 from skyfield import almanac
 from skyfield import eclipselib
 
-from moon.astronomy import ts, eph
+from moon.astronomy import (
+    ts,
+    eph,
+    get_moon_longitude_at,
+)
 
 
 SEASON_NAMES = {
@@ -10,6 +14,30 @@ SEASON_NAMES = {
     2: "Spring Equinox",
     3: "Summer Solstice",
 }
+
+
+SIGNS = [
+    "Aries",
+    "Taurus",
+    "Gemini",
+    "Cancer",
+    "Leo",
+    "Virgo",
+    "Libra",
+    "Scorpio",
+    "Sagittarius",
+    "Capricorn",
+    "Aquarius",
+    "Pisces",
+]
+
+
+
+def get_sign(longitude):
+
+    return SIGNS[
+        int(longitude // 30)
+    ]
 
 
 
@@ -94,11 +122,22 @@ def find_lunar_eclipses(
         kinds,
     ):
 
+        dt = time.utc_datetime()
+
+        longitude = get_moon_longitude_at(
+            dt
+        )
+
+
         events.append(
             {
                 "type": "Lunar Eclipse",
 
-                "time": time.utc_datetime(),
+                "sign": get_sign(
+                    longitude
+                ),
+
+                "time": dt,
 
                 "kind": str(kind),
             }
@@ -148,11 +187,22 @@ def find_solar_eclipses(
             kinds,
         ):
 
+            dt = time.utc_datetime()
+
+            longitude = get_moon_longitude_at(
+                dt
+            )
+
+
             events.append(
                 {
                     "type": "Solar Eclipse",
 
-                    "time": time.utc_datetime(),
+                    "sign": get_sign(
+                        longitude
+                    ),
+
+                    "time": dt,
 
                     "kind": str(kind),
                 }
