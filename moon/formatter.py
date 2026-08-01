@@ -15,35 +15,40 @@ def format_time(value):
 
 def format_title(day: MoonDay):
 
-    title = (
+    return (
         f"{day.phase} "
         f"in "
         f"{day.sign}"
     )
 
 
-    if (
-        day.phase_time
-        and day.phase in [
-            "New Moon",
-            "Full Moon",
-            "Balsamic Moon",
-        ]
-    ):
 
-        title += (
+def format_notes(day: MoonDay):
+
+    lines = []
+
+
+    phase_line = (
+        f"{day.phase} "
+        f"in "
+        f"{day.sign}"
+    )
+
+
+    if day.phase_time:
+
+        phase_line += (
             f", "
             f"{format_time(day.phase_time)}"
         )
 
 
-    return title
+    lines.append(
+        phase_line
+    )
 
 
-
-def format_notes(day: MoonDay):
-
-    lines = []
+    lines.append("")
 
 
     lines.append(
@@ -56,6 +61,7 @@ def format_notes(day: MoonDay):
 
         lines.append("")
 
+
         lines.append(
             f"{day.sign_transition['from']}"
             f" → "
@@ -63,6 +69,9 @@ def format_notes(day: MoonDay):
             f", "
             f"{format_time(day.sign_transition['time'])}"
         )
+
+
+    # Coming will be added here
 
 
     lines.append("")
