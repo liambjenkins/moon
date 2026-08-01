@@ -1,10 +1,15 @@
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
-from moon.astronomy import get_phase_angle
+from moon.astronomy import (
+    get_phase_angle,
+    get_moon_longitude_at,
+)
 
 
-MELBOURNE = ZoneInfo("Australia/Melbourne")
+MELBOURNE = ZoneInfo(
+    "Australia/Melbourne"
+)
 
 
 TARGETS = {
@@ -15,26 +20,53 @@ TARGETS = {
 }
 
 
+SIGNS = [
+    "Aries",
+    "Taurus",
+    "Gemini",
+    "Cancer",
+    "Leo",
+    "Virgo",
+    "Libra",
+    "Scorpio",
+    "Sagittarius",
+    "Capricorn",
+    "Aquarius",
+    "Pisces",
+]
+
+
+
+def get_sign(longitude):
+
+    return SIGNS[
+        int(longitude // 30)
+    ]
+
+
+
 def normalise(angle):
 
     return angle % 360
 
 
 
-def forward_angle_difference(start, end):
-    """
-    Returns clockwise movement from start to end.
-    """
+def forward_angle_difference(
+    start,
+    end,
+):
 
-    return (end - start) % 360
+    return (
+        end - start
+    ) % 360
 
 
 
-def crossed(previous, current, target):
-    """
-    Checks whether the lunar phase angle crossed
-    a target angle between two observations.
-    """
+def crossed(
+    previous,
+    current,
+    target,
+):
 
     movement = forward_angle_difference(
         previous,
@@ -55,9 +87,6 @@ def refine_event_time(
     end,
     target,
 ):
-    """
-    Binary search for the exact phase transition.
-    """
 
     for _ in range(30):
 
@@ -87,20 +116,17 @@ def refine_event_time(
             start = midpoint
 
 
+
     return start + (
         end - start
     ) / 2
 
 
 
-def add_event(events, event):
-    """
-    Prevent duplicate phase events.
-
-    Two events are considered duplicates if:
-    - they have the same phase name
-    - they occur within 10 minutes
-    """
+def add_event(
+    events,
+    event,
+):
 
     for existing in events:
 
@@ -127,7 +153,9 @@ def add_event(events, event):
             return
 
 
-    events.append(event)
+    events.append(
+        event
+    )
 
 
 
@@ -163,7 +191,10 @@ def find_phase_events(
     )
 
 
-    step = timedelta(hours=6)
+    step = timedelta(
+        hours=6
+    )
+
 
 
     while current < end:
@@ -196,11 +227,22 @@ def find_phase_events(
                 )
 
 
+                longitude = get_moon_longitude_at(
+                    event_time
+                )
+
+
                 add_event(
                     events,
                     {
                         "phase": name,
+
+                        "sign": get_sign(
+                            longitude
+                        ),
+
                         "time": local_time,
+
                         "date": local_time.date(),
                     }
                 )
