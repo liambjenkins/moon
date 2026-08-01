@@ -20,8 +20,4 @@ class MoonDay:
 
     sign_transition: Optional[dict] = None
 
-    next_phase: Optional[str] = None
-
-    next_phase_date: Optional[date] = None
-
-    next_phase_days: Optional[int] = None
+    coming: Optional[list] = None
