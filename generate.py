@@ -1,5 +1,4 @@
 from datetime import date, timedelta
-import sys
 
 from moon.astronomy import get_raw_moon_data
 from moon.models import MoonDay
@@ -8,7 +7,6 @@ from moon.lunar_days import get_lunar_day
 from moon.phase_events import find_phase_events
 from moon.sign_events import find_sign_events
 from moon.celestial_events import find_celestial_events
-from moon.upcoming import build_upcoming
 from moon.feed import build_feed, save_feed
 
 from moon.formatter import (
@@ -68,7 +66,6 @@ def get_daily_phase(
         return "Balsamic Moon"
 
 
-
     previous = previous_phase_lookup[current]
 
 
@@ -94,8 +91,6 @@ def build_day(
     previous_phase_lookup,
     sign_lookup,
     sign_transition_lookup,
-    phase_events,
-    celestial_events,
 ):
 
     raw = get_raw_moon_data(
@@ -116,13 +111,6 @@ def build_day(
     if current in phase_lookup:
 
         phase_time = phase_lookup[current]["time"]
-
-
-    coming = build_upcoming(
-        current,
-        phase_events,
-        celestial_events,
-    )
 
 
 
@@ -151,16 +139,11 @@ def build_day(
             current
         ),
 
-        coming=coming,
-
     )
 
 
 
-def build_days(
-    year,
-    celestial_events,
-):
+def build_days(year):
 
     start = date(
         year,
@@ -174,7 +157,6 @@ def build_days(
         1,
         1
     )
-
 
 
     phase_events = find_phase_events(
@@ -204,7 +186,6 @@ def build_days(
 
 
     while current < end:
-
 
         if current in phase_lookup:
 
@@ -248,7 +229,6 @@ def build_days(
 
     while current < end:
 
-
         for event in sign_events:
 
             if event["date"] == current:
@@ -276,7 +256,6 @@ def build_days(
 
     while current < end:
 
-
         days.append(
 
             build_day(
@@ -291,10 +270,6 @@ def build_days(
 
                 sign_transition_lookup,
 
-                phase_events,
-
-                celestial_events,
-
             )
 
         )
@@ -303,6 +278,7 @@ def build_days(
         current += timedelta(
             days=1
         )
+
 
 
     return days
@@ -318,7 +294,6 @@ def build_moon_events(days):
 
 
     for day in days:
-
 
         event = Event()
 
@@ -368,7 +343,6 @@ def build_celestial_events(
 
     for celestial in celestial_events:
 
-
         event = Event()
 
 
@@ -411,45 +385,48 @@ def build_celestial_events(
 
 if __name__ == "__main__":
 
+    current_year = date.today().year
 
-    year = int(
-        sys.argv[1]
+    years = range(
+        current_year,
+        current_year + 6
+    )
+
+
+    all_days = []
+
+
+    for year in years:
+
+        all_days.extend(
+            build_days(year)
+        )
+
+
+
+    moon_events = build_moon_events(
+        all_days
     )
 
 
     start = date(
-        year,
+        current_year,
         1,
         1
     )
 
 
     end = date(
-        year + 1,
+        current_year + 6,
         1,
         1
     )
-
 
 
     celestial = find_celestial_events(
         start,
         end
     )
-
-
-
-    days = build_days(
-        year,
-        celestial,
-    )
-
-
-
-    moon_events = build_moon_events(
-        days
-    )
-
 
 
     celestial_events = build_celestial_events(
@@ -483,7 +460,6 @@ if __name__ == "__main__":
     )
 
 
-
     print(
-        f"Moon calendars generated for {year} 🌙"
+        f"Moon calendars generated {current_year}-{current_year + 5} 🌙"
     )
