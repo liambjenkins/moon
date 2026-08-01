@@ -1,6 +1,3 @@
-from datetime import date
-
-
 INCLUDED_PHASES = [
     "New Moon",
     "Full Moon",
@@ -38,6 +35,31 @@ def days_until(
 
 
 
+def add_upcoming(
+    upcoming,
+    event_date,
+    text,
+):
+
+    for existing in upcoming:
+
+        if (
+            existing["date"] == event_date
+            and existing["text"] == text
+        ):
+
+            return
+
+
+    upcoming.append(
+        {
+            "date": event_date,
+            "text": text,
+        }
+    )
+
+
+
 def build_upcoming(
     current,
     phase_events,
@@ -53,7 +75,9 @@ def build_upcoming(
 
     for event in phase_events:
 
+
         if event["phase"] not in INCLUDED_PHASES:
+
             continue
 
 
@@ -66,9 +90,10 @@ def build_upcoming(
         )
 
 
-        # Only future events within 30 days
         if days <= 0 or days > 30:
+
             continue
+
 
 
         sign = event.get(
@@ -92,11 +117,10 @@ def build_upcoming(
             )
 
 
-        upcoming.append(
-            {
-                "date": event_date,
-                "text": text,
-            }
+        add_upcoming(
+            upcoming,
+            event_date,
+            text,
         )
 
 
@@ -107,7 +131,9 @@ def build_upcoming(
 
     for event in celestial_events:
 
+
         if event["type"] not in INCLUDED_CELESTIAL:
+
             continue
 
 
@@ -120,8 +146,8 @@ def build_upcoming(
         )
 
 
-        # Only future events within 30 days
         if days <= 0 or days > 30:
+
             continue
 
 
@@ -132,7 +158,7 @@ def build_upcoming(
                 "Solar Eclipse",
                 "Lunar Eclipse",
             ]
-            and "sign" in event
+            and event.get("sign")
         ):
 
             text = (
@@ -149,11 +175,10 @@ def build_upcoming(
             )
 
 
-        upcoming.append(
-            {
-                "date": event_date,
-                "text": text,
-            }
+        add_upcoming(
+            upcoming,
+            event_date,
+            text,
         )
 
 
