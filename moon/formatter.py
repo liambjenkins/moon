@@ -29,12 +29,6 @@ def format_notes(
     lines = []
 
 
-    lines.append(
-        f"Lunar Day {day.lunar_day}, "
-        f"{day.illumination}% Illumination"
-    )
-
-
     if (
         day.phase in [
             "New Moon",
@@ -44,14 +38,20 @@ def format_notes(
     ):
 
         lines.append(
-            ""
-        )
-
-        lines.append(
-            f"{day.phase} Time: "
+            f"{day.phase} "
+            f"in {day.sign}, "
             f"{format_time(day.phase_time)}"
         )
 
+        lines.append(
+            ""
+        )
+
+
+    lines.append(
+        f"Lunar Day {day.lunar_day}, "
+        f"{day.illumination}% Illumination"
+    )
 
 
     if day.sign_transition:
@@ -65,7 +65,6 @@ def format_notes(
             f"{day.sign_transition['to']}, "
             f"{format_time(day.sign_transition['time'])}"
         )
-
 
 
     upcoming = build_upcoming(
