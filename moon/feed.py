@@ -3,7 +3,10 @@ from pathlib import Path
 from icalendar import Calendar
 
 
-def build_feed(events):
+def build_feed(
+    events,
+    name="Moon Calendar",
+):
 
     calendar = Calendar()
 
@@ -19,7 +22,7 @@ def build_feed(events):
 
     calendar.add(
         "X-WR-CALNAME",
-        "Moon Calendar"
+        name
     )
 
     calendar.add(
@@ -41,7 +44,7 @@ def build_feed(events):
 
 def save_feed(
     calendar,
-    filename="Moon.ics"
+    filename,
 ):
 
     output = Path(filename)
