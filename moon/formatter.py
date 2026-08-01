@@ -1,4 +1,4 @@
-from .models import MoonDay
+from moon.models import MoonDay
 
 
 def format_time(value):
@@ -6,82 +6,35 @@ def format_time(value):
     if value is None:
         return None
 
-    return (
-        value
-        .strftime("%I:%M%p")
-        .lstrip("0")
-        .lower()
-    )
+    return value.strftime("%-I:%M%p").lower()
+
 
 
 def format_title(day: MoonDay):
 
-    return f"{day.phase} Moon in {day.sign}"
+    return f"{day.phase} in {day.sign}"
+
 
 
 def format_notes(day: MoonDay):
 
     lines = []
 
-    title = (
-        f"{day.phase} "
-        f"({day.illumination}% illuminated"
+    lines.append(
+        f"{day.phase} in {day.sign}"
     )
 
-    if day.phase_time:
-        title += (
-            f", exact phase: "
-            f"{format_time(day.phase_time)}"
-        )
-
-    title += f") in {day.sign}"
-
-    lines.append(title)
-
     lines.append("")
-
-
-    if day.moonrise:
-
-        lines.append(
-            f"Moonrise: {format_time(day.moonrise)}"
-        )
-
-
-    if day.moonset:
-
-        lines.append(
-            f"Moonset: {format_time(day.moonset)}"
-        )
-
-
-    if day.transit:
-
-        lines.append("")
-
-        transit_text = (
-            f"Transit: "
-            f"{day.transit['from']} → "
-            f"{day.transit['to']}"
-        )
-
-        if day.transit_time:
-
-            transit_text += (
-                f" ({format_time(day.transit_time)})"
-            )
-
-        lines.append(
-            transit_text
-        )
-
-
-    lines.append("")
-
 
     lines.append(
-        "Location: Melbourne, Australia"
+        f"Lunar Day {day.lunar_day}, "
+        f"{day.illumination}% Illumination"
     )
 
+    lines.append("")
+
+    lines.append(
+        "Melbourne, Australia"
+    )
 
     return "\n".join(lines)
