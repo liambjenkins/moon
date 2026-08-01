@@ -1,11 +1,7 @@
 from skyfield import almanac
+from skyfield import eclipselib
 
-from moon.astronomy import (
-    ts,
-    eph,
-    get_phase_angle_at,
-    datetime_to_time,
-)
+from moon.astronomy import ts, eph
 
 
 SEASON_NAMES = {
@@ -69,10 +65,47 @@ def find_lunar_eclipses(
     end_date,
 ):
 
-    # Placeholder structure.
-    # Eclipse calculation added next.
+    events = []
 
-    return []
+
+    start = ts.utc(
+        start_date.year,
+        start_date.month,
+        start_date.day,
+    )
+
+
+    end = ts.utc(
+        end_date.year,
+        end_date.month,
+        end_date.day,
+    )
+
+
+    times, kinds, details = eclipselib.lunar_eclipses(
+        start,
+        end,
+        eph,
+    )
+
+
+    for time, kind in zip(
+        times,
+        kinds,
+    ):
+
+        events.append(
+            {
+                "type": "Lunar Eclipse",
+
+                "time": time.utc_datetime(),
+
+                "kind": str(kind),
+            }
+        )
+
+
+    return events
 
 
 
@@ -81,10 +114,52 @@ def find_solar_eclipses(
     end_date,
 ):
 
-    # Placeholder structure.
-    # Eclipse calculation added next.
+    events = []
 
-    return []
+
+    start = ts.utc(
+        start_date.year,
+        start_date.month,
+        start_date.day,
+    )
+
+
+    end = ts.utc(
+        end_date.year,
+        end_date.month,
+        end_date.day,
+    )
+
+
+    if hasattr(
+        eclipselib,
+        "solar_eclipses"
+    ):
+
+        times, kinds, details = eclipselib.solar_eclipses(
+            start,
+            end,
+            eph,
+        )
+
+
+        for time, kind in zip(
+            times,
+            kinds,
+        ):
+
+            events.append(
+                {
+                    "type": "Solar Eclipse",
+
+                    "time": time.utc_datetime(),
+
+                    "kind": str(kind),
+                }
+            )
+
+
+    return events
 
 
 
