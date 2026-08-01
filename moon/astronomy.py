@@ -106,3 +106,15 @@ def get_phase_angle(dt):
     return get_phase_angle_at(
         datetime_to_time(dt)
     )
+
+
+def get_moon_longitude_at(dt):
+
+    if dt.tzinfo is None:
+        dt = dt.replace(
+            tzinfo=timezone.utc
+        )
+
+    return get_moon_longitude(
+        datetime_to_time(dt)
+    )
