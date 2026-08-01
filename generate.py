@@ -66,6 +66,7 @@ def get_daily_phase(
         return "Balsamic Moon"
 
 
+
     previous = previous_phase_lookup[current]
 
 
@@ -280,12 +281,15 @@ def build_days(year):
         )
 
 
-
     return days
 
 
 
-def build_moon_events(days):
+def build_moon_events(
+    days,
+    phase_events,
+    celestial_events,
+):
 
     from icalendar import Event
 
@@ -294,6 +298,7 @@ def build_moon_events(days):
 
 
     for day in days:
+
 
         event = Event()
 
@@ -312,7 +317,11 @@ def build_moon_events(days):
 
         event.add(
             "description",
-            format_notes(day)
+            format_notes(
+                day,
+                phase_events,
+                celestial_events,
+            )
         )
 
 
@@ -342,6 +351,7 @@ def build_celestial_events(
 
 
     for celestial in celestial_events:
+
 
         event = Event()
 
@@ -387,6 +397,7 @@ if __name__ == "__main__":
 
     current_year = date.today().year
 
+
     years = range(
         current_year,
         current_year + 6
@@ -395,18 +406,25 @@ if __name__ == "__main__":
 
     all_days = []
 
+    all_phase_events = []
+
+
 
     for year in years:
+
 
         all_days.extend(
             build_days(year)
         )
 
 
+        all_phase_events.extend(
+            find_phase_events(
+                date(year, 1, 1),
+                date(year + 1, 1, 1),
+            )
+        )
 
-    moon_events = build_moon_events(
-        all_days
-    )
 
 
     start = date(
@@ -427,6 +445,15 @@ if __name__ == "__main__":
         start,
         end
     )
+
+
+
+    moon_events = build_moon_events(
+        all_days,
+        all_phase_events,
+        celestial,
+    )
+
 
 
     celestial_events = build_celestial_events(
