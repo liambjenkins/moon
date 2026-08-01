@@ -8,6 +8,7 @@ from moon.lunar_days import get_lunar_day
 from moon.phase_events import find_phase_events
 from moon.sign_events import find_sign_events
 from moon.celestial_events import find_celestial_events
+from moon.upcoming import build_upcoming
 from moon.feed import build_feed, save_feed
 
 from moon.formatter import (
@@ -93,6 +94,8 @@ def build_day(
     previous_phase_lookup,
     sign_lookup,
     sign_transition_lookup,
+    phase_events,
+    celestial_events,
 ):
 
     raw = get_raw_moon_data(
@@ -113,6 +116,13 @@ def build_day(
     if current in phase_lookup:
 
         phase_time = phase_lookup[current]["time"]
+
+
+    coming = build_upcoming(
+        current,
+        phase_events,
+        celestial_events,
+    )
 
 
 
@@ -141,11 +151,16 @@ def build_day(
             current
         ),
 
+        coming=coming,
+
     )
 
 
 
-def build_days(year):
+def build_days(
+    year,
+    celestial_events,
+):
 
     start = date(
         year,
@@ -276,6 +291,10 @@ def build_days(year):
 
                 sign_transition_lookup,
 
+                phase_events,
+
+                celestial_events,
+
             )
 
         )
@@ -284,7 +303,6 @@ def build_days(year):
         current += timedelta(
             days=1
         )
-
 
 
     return days
@@ -414,20 +432,24 @@ if __name__ == "__main__":
 
 
 
-    days = build_days(
-        year
+    celestial = find_celestial_events(
+        start,
+        end
     )
+
+
+
+    days = build_days(
+        year,
+        celestial,
+    )
+
 
 
     moon_events = build_moon_events(
         days
     )
 
-
-    celestial = find_celestial_events(
-        start,
-        end
-    )
 
 
     celestial_events = build_celestial_events(
@@ -459,6 +481,7 @@ if __name__ == "__main__":
         celestial_calendar,
         "Celestial.ics"
     )
+
 
 
     print(
