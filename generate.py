@@ -4,9 +4,9 @@ import sys
 from moon.astronomy import get_raw_moon_data
 from moon.models import MoonDay
 from moon.phases import get_illumination
+from moon.lunar_days import get_lunar_day
 from moon.phase_events import find_phase_events
 from moon.sign_events import find_sign_events
-from moon.rise_set import get_rise_set
 from moon.feed import build_feed, save_feed
 from moon.formatter import format_title, format_notes
 
@@ -103,12 +103,8 @@ def build_day(
     )
 
 
-    rise_set = get_rise_set(
-        current
-    )
-
-
     return MoonDay(
+
         date=current,
 
         phase=phase,
@@ -117,17 +113,13 @@ def build_day(
             raw["angle"]
         ),
 
+        lunar_day=get_lunar_day(
+            raw["angle"]
+        ),
+
         sign=get_daily_sign(
             current,
             sign_lookup,
-        ),
-
-        moonrise=rise_set.get(
-            "moonrise"
-        ),
-
-        moonset=rise_set.get(
-            "moonset"
         ),
     )
 
