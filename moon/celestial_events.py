@@ -1,11 +1,14 @@
 from skyfield import almanac
-from skyfield import eclipselib
 
 from moon.astronomy import (
     ts,
     eph,
     get_moon_longitude_at,
+    get_sun_longitude_at,
 )
+
+from moon.phase_events import find_phase_events
+
 
 
 SEASON_NAMES = {
@@ -78,7 +81,6 @@ def find_seasonal_events(
         events.append(
             {
                 "type": SEASON_NAMES[season],
-
                 "time": time.utc_datetime(),
             }
         )
@@ -92,6 +94,9 @@ def find_lunar_eclipses(
     start_date,
     end_date,
 ):
+
+    from skyfield import eclipselib
+
 
     events = []
 
@@ -124,17 +129,13 @@ def find_lunar_eclipses(
 
         dt = time.utc_datetime()
 
-        longitude = get_moon_longitude_at(
-            dt
-        )
-
 
         events.append(
             {
                 "type": "Lunar Eclipse",
 
                 "sign": get_sign(
-                    longitude
+                    get_moon_longitude_at(dt)
                 ),
 
                 "time": dt,
@@ -156,55 +157,58 @@ def find_solar_eclipses(
     events = []
 
 
-    start = ts.utc(
-        start_date.year,
-        start_date.month,
-        start_date.day,
+    new_moons = find_phase_events(
+        start_date,
+        end_date,
     )
 
 
-    end = ts.utc(
-        end_date.year,
-        end_date.month,
-        end_date.day,
-    )
+    for moon in new_moons:
+
+        if moon["phase"] != "New Moon":
+            continue
 
 
-    if hasattr(
-        eclipselib,
-        "solar_eclipses"
-    ):
+        dt = moon["time"]
 
-        times, kinds, details = eclipselib.solar_eclipses(
-            start,
-            end,
-            eph,
+
+        moon_lon = get_moon_longitude_at(
+            dt
+        )
+
+        sun_lon = get_sun_longitude_at(
+            dt
         )
 
 
-        for time, kind in zip(
-            times,
-            kinds,
-        ):
+        separation = abs(
+            moon_lon - sun_lon
+        )
 
-            dt = time.utc_datetime()
 
-            longitude = get_moon_longitude_at(
-                dt
-            )
+        if separation > 180:
+            separation = 360 - separation
 
+
+        # Placeholder eclipse threshold:
+        # New Moon must be close to the Sun
+        # and near an eclipse node.
+        #
+        # Refined once we add lunar latitude.
+
+        if separation < 1:
 
             events.append(
                 {
                     "type": "Solar Eclipse",
 
                     "sign": get_sign(
-                        longitude
+                        moon_lon
                     ),
 
                     "time": dt,
 
-                    "kind": str(kind),
+                    "kind": "Solar",
                 }
             )
 
