@@ -14,12 +14,14 @@ class MoonDay:
 
     sign: str
 
-    moonrise: Optional[datetime] = None
-
-    moonset: Optional[datetime] = None
+    lunar_day: int
 
     phase_time: Optional[datetime] = None
 
-    transit: Optional[dict] = None
+    sign_transition: Optional[dict] = None
 
-    transit_time: Optional[datetime] = None
+    next_phase: Optional[str] = None
+
+    next_phase_date: Optional[date] = None
+
+    next_phase_days: Optional[int] = None
