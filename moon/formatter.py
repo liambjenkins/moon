@@ -1,6 +1,7 @@
 from moon.upcoming import build_upcoming
 
 
+
 def format_time(value):
 
     if value is None:
@@ -12,20 +13,10 @@ def format_time(value):
 
 def format_title(day):
 
-    title = (
+    return (
         f"{day.phase} "
         f"in {day.sign}"
     )
-
-
-    if day.phase_time:
-
-        title += (
-            f", {format_time(day.phase_time)}"
-        )
-
-
-    return title
 
 
 
@@ -44,6 +35,25 @@ def format_notes(
     )
 
 
+    if (
+        day.phase in [
+            "New Moon",
+            "Full Moon",
+        ]
+        and day.phase_time
+    ):
+
+        lines.append(
+            ""
+        )
+
+        lines.append(
+            f"{day.phase} Time: "
+            f"{format_time(day.phase_time)}"
+        )
+
+
+
     if day.sign_transition:
 
         lines.append(
@@ -55,6 +65,7 @@ def format_notes(
             f"{day.sign_transition['to']}, "
             f"{format_time(day.sign_transition['time'])}"
         )
+
 
 
     upcoming = build_upcoming(
