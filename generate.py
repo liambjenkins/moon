@@ -11,6 +11,7 @@ from moon.feed import build_feed, save_feed
 from moon.formatter import format_title, format_notes
 
 
+
 def get_sign(longitude):
 
     signs = [
@@ -41,14 +42,14 @@ def get_daily_phase(
 ):
 
     if current in phase_lookup:
-        return phase_lookup[current]
+        return phase_lookup[current]["phase"]
 
 
     tomorrow = current + timedelta(days=1)
 
     if (
         tomorrow in phase_lookup
-        and phase_lookup[tomorrow] == "New Moon"
+        and phase_lookup[tomorrow]["phase"] == "New Moon"
     ):
         return "Balsamic Moon"
 
@@ -103,6 +104,12 @@ def build_day(
     )
 
 
+    phase_time = None
+
+    if current in phase_lookup:
+        phase_time = phase_lookup[current]["time"]
+
+
     return MoonDay(
 
         date=current,
@@ -121,6 +128,8 @@ def build_day(
             current,
             sign_lookup,
         ),
+
+        phase_time=phase_time,
     )
 
 
@@ -153,8 +162,8 @@ def build_days(year):
     for event in phase_events:
 
         phase_lookup[
-            event["time"].date()
-        ] = event["phase"]
+            event["date"]
+        ] = event
 
 
 
@@ -168,7 +177,7 @@ def build_days(year):
     while current < end:
 
         if current in phase_lookup:
-            last_phase = phase_lookup[current]
+            last_phase = phase_lookup[current]["phase"]
 
         previous_phase_lookup[current] = last_phase
 
