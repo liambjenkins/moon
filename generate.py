@@ -9,7 +9,16 @@ from moon.phase_events import find_phase_events
 from moon.sign_events import find_sign_events
 from moon.celestial_events import find_celestial_events
 from moon.feed import build_feed, save_feed
-from moon.formatter import format_title, format_notes
+
+from moon.formatter import (
+    format_title,
+    format_notes,
+)
+
+from moon.celestial_formatter import (
+    format_title as celestial_format_title,
+    format_notes as celestial_format_notes,
+)
 
 
 
@@ -99,6 +108,7 @@ def build_day(
 
 
     phase_time = None
+
 
     if current in phase_lookup:
 
@@ -346,7 +356,9 @@ def build_celestial_events(
 
         event.add(
             "summary",
-            celestial["type"]
+            celestial_format_title(
+                celestial
+            )
         )
 
 
@@ -357,14 +369,16 @@ def build_celestial_events(
 
 
         event.add(
-            "uid",
-            f"celestial-{celestial['time']}@moon-calendar"
+            "description",
+            celestial_format_notes(
+                celestial
+            )
         )
 
 
         event.add(
-            "description",
-            celestial["type"]
+            "uid",
+            f"celestial-{celestial['time']}@moon-calendar"
         )
 
 
