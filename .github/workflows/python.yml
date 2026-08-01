@@ -15,9 +15,9 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -26,19 +26,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Download Skyfield ephemeris
-        run: |
-          python - <<'PY'
-          from skyfield.api import load
-          load("de421.bsp")
-          PY
-
       - name: Generate calendar
         run: |
           PYTHONPATH=. python generate.py ${{ github.event.inputs.year }}
 
       - name: Upload calendar
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Moon-${{ github.event.inputs.year }}
           path: Moon.ics
