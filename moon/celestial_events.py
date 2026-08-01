@@ -4,10 +4,10 @@ from moon.astronomy import ts, eph
 
 
 SEASON_NAMES = {
-    0: "March Equinox",
-    1: "June Solstice",
-    2: "September Equinox",
-    3: "December Solstice",
+    0: "Autumn Equinox",
+    1: "Winter Solstice",
+    2: "Spring Equinox",
+    3: "Summer Solstice",
 }
 
 
@@ -56,3 +56,26 @@ def find_seasonal_events(
 
 
     return events
+
+
+
+def find_celestial_events(
+    start_date,
+    end_date,
+):
+
+    events = []
+
+
+    events.extend(
+        find_seasonal_events(
+            start_date,
+            end_date,
+        )
+    )
+
+
+    return sorted(
+        events,
+        key=lambda event: event["time"]
+    )
