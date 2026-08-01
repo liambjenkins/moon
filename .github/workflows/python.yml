@@ -12,44 +12,69 @@ on:
         required: true
         default: "2026"
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
 
-
     steps:
 
       - name: Checkout repository
         uses: actions/checkout@v5
-
 
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
-
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-
 
       - name: Check Skyfield eclipse support
         run: |
           python -c "from skyfield import eclipselib; print('eclipselib works')"
 
-
-      - name: Generate calendar
+      - name: Generate calendars
         run: |
           PYTHONPATH=. python generate.py ${{ github.event.inputs.year || '2026' }}
 
+      - name: Prepare Pages site
+        run: |
+          mkdir site
+          cp Moon.ics site/
+          cp Celestial.ics site/
+          touch site/.nojekyll
 
-      - name: Upload calendars
-        uses: actions/upload-artifact@v5
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
         with:
-          name: moon-calendars
-          path: |
-            Moon.ics
-            Celestial.ics
+          path: site
+
+  deploy:
+
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
