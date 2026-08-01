@@ -16,7 +16,9 @@ TARGETS = {
 
 
 def normalise(angle):
+
     return angle % 360
+
 
 
 def forward_angle_difference(start, end):
@@ -25,6 +27,7 @@ def forward_angle_difference(start, end):
     """
 
     return (end - start) % 360
+
 
 
 def crossed(previous, current, target):
@@ -62,20 +65,27 @@ def refine_event_time(
             end - start
         ) / 2
 
+
         start_distance = forward_angle_difference(
             get_phase_angle(start),
             target,
         )
+
 
         mid_distance = forward_angle_difference(
             get_phase_angle(midpoint),
             target,
         )
 
+
         if mid_distance < start_distance:
+
             end = midpoint
+
         else:
+
             start = midpoint
+
 
     return start + (
         end - start
@@ -100,6 +110,7 @@ def add_event(events, event):
             event["phase"]
         )
 
+
         close_time = (
             abs(
                 existing["time"]
@@ -110,8 +121,11 @@ def add_event(events, event):
             timedelta(minutes=10)
         )
 
+
         if same_phase and close_time:
+
             return
+
 
     events.append(event)
 
@@ -124,12 +138,14 @@ def find_phase_events(
 
     events = []
 
+
     current = datetime(
         start_date.year,
         start_date.month,
         start_date.day,
         tzinfo=timezone.utc,
     )
+
 
     end = datetime(
         end_date.year,
@@ -140,6 +156,7 @@ def find_phase_events(
 
 
     previous_time = current
+
 
     previous_angle = normalise(
         get_phase_angle(current)
@@ -152,6 +169,7 @@ def find_phase_events(
     while current < end:
 
         current += step
+
 
         current_angle = normalise(
             get_phase_angle(current)
@@ -172,19 +190,26 @@ def find_phase_events(
                     target,
                 )
 
+
+                local_time = event_time.astimezone(
+                    MELBOURNE
+                )
+
+
                 add_event(
                     events,
                     {
                         "phase": name,
-                        "time": event_time.astimezone(
-                            MELBOURNE
-                        ),
+                        "time": local_time,
+                        "date": local_time.date(),
                     }
                 )
 
 
         previous_time = current
+
         previous_angle = current_angle
+
 
 
     return sorted(
