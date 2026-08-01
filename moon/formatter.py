@@ -1,5 +1,4 @@
-from moon.models import MoonDay
-
+from moon.upcoming import build_upcoming
 
 
 def format_time(value):
@@ -7,33 +6,11 @@ def format_time(value):
     if value is None:
         return None
 
-    return value.strftime(
-        "%-I:%M%p"
-    ).lower()
+    return value.strftime("%-I:%M%p").lower()
 
 
 
-def format_title(
-    day: MoonDay
-):
-
-    return (
-        f"{day.phase} "
-        f"in {day.sign}"
-    )
-
-
-
-def format_notes(
-    day: MoonDay
-):
-
-    lines = []
-
-
-    #
-    # Moon event detail
-    #
+def format_title(day):
 
     title = (
         f"{day.phase} "
@@ -44,24 +21,22 @@ def format_notes(
     if day.phase_time:
 
         title += (
-            f", "
-            f"{format_time(day.phase_time)}"
+            f", {format_time(day.phase_time)}"
         )
 
 
-    lines.append(
-        title
-    )
+    return title
 
 
-    lines.append(
-        ""
-    )
 
+def format_notes(
+    day,
+    phase_events,
+    celestial_events,
+):
 
-    #
-    # Lunar information
-    #
+    lines = []
+
 
     lines.append(
         f"Lunar Day {day.lunar_day}, "
@@ -69,30 +44,27 @@ def format_notes(
     )
 
 
-    #
-    # Moon sign transition
-    #
-
     if day.sign_transition:
 
         lines.append(
             ""
         )
 
-
         lines.append(
-            f"{day.sign_transition['from']} "
-            f"→ "
+            f"{day.sign_transition['from']} → "
             f"{day.sign_transition['to']}, "
             f"{format_time(day.sign_transition['time'])}"
         )
 
 
-    #
-    # Coming events
-    #
+    upcoming = build_upcoming(
+        day.date,
+        phase_events,
+        celestial_events,
+    )
 
-    if day.coming:
+
+    if upcoming:
 
         lines.append(
             ""
@@ -103,21 +75,11 @@ def format_notes(
         )
 
 
-        for event in day.coming:
+        for event in upcoming:
 
             lines.append(
                 event
             )
-
-
-    lines.append(
-        ""
-    )
-
-
-    lines.append(
-        "Melbourne, Australia"
-    )
 
 
     return "\n".join(lines)
