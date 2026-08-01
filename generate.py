@@ -7,6 +7,7 @@ from moon.phases import get_illumination
 from moon.lunar_days import get_lunar_day
 from moon.phase_events import find_phase_events
 from moon.sign_events import find_sign_events
+from moon.celestial_events import find_celestial_events
 from moon.feed import build_feed, save_feed
 from moon.formatter import format_title, format_notes
 
@@ -151,8 +152,6 @@ def build_days(year):
 
 
 
-    # PHASE EVENTS
-
     phase_events = find_phase_events(
         start,
         end
@@ -196,8 +195,6 @@ def build_days(year):
 
 
 
-    # SIGN EVENTS
-
     sign_events = find_sign_events(
         start,
         end
@@ -227,18 +224,13 @@ def build_days(year):
     while current < end:
 
 
-        if current in [
-            event["date"]
-            for event in sign_events
-        ]:
+        for event in sign_events:
 
-            for event in sign_events:
+            if event["date"] == current:
 
-                if event["date"] == current:
+                last_sign = event["to"]
 
-                    last_sign = event["to"]
-
-                    sign_transition_lookup[current] = event
+                sign_transition_lookup[current] = event
 
 
 
@@ -250,8 +242,6 @@ def build_days(year):
         )
 
 
-
-    # BUILD DAYS
 
     days = []
 
@@ -291,7 +281,7 @@ def build_days(year):
 
 
 
-def build_events(days):
+def build_moon_events(days):
 
     from icalendar import Event
 
@@ -338,6 +328,55 @@ def build_events(days):
 
 
 
+def build_celestial_events(
+    celestial_events
+):
+
+    from icalendar import Event
+
+
+    events = []
+
+
+    for celestial in celestial_events:
+
+
+        event = Event()
+
+
+        event.add(
+            "summary",
+            celestial["type"]
+        )
+
+
+        event.add(
+            "dtstart",
+            celestial["time"].date()
+        )
+
+
+        event.add(
+            "uid",
+            f"celestial-{celestial['time']}@moon-calendar"
+        )
+
+
+        event.add(
+            "description",
+            celestial["type"]
+        )
+
+
+        events.append(
+            event
+        )
+
+
+    return events
+
+
+
 if __name__ == "__main__":
 
 
@@ -346,26 +385,68 @@ if __name__ == "__main__":
     )
 
 
+    start = date(
+        year,
+        1,
+        1
+    )
+
+
+    end = date(
+        year + 1,
+        1,
+        1
+    )
+
+
+
     days = build_days(
         year
     )
 
 
-    events = build_events(
+    moon_events = build_moon_events(
         days
     )
 
 
-    calendar = build_feed(
-        events
+    celestial = find_celestial_events(
+        start,
+        end
+    )
+
+
+    celestial_events = build_celestial_events(
+        celestial
+    )
+
+
+
+    moon_calendar = build_feed(
+        moon_events,
+        "Moon Calendar"
+    )
+
+
+    celestial_calendar = build_feed(
+        celestial_events,
+        "Celestial Calendar"
+    )
+
+
+
+    save_feed(
+        moon_calendar,
+        "Moon.ics"
     )
 
 
     save_feed(
-        calendar
+        celestial_calendar,
+        "Celestial.ics"
     )
 
 
     print(
-        f"Moon calendar generated for {year} 🌙"
+        f"Moon calendars generated for {year} 🌙"
     )
