@@ -3,7 +3,7 @@ import sys
 
 from moon.astronomy import get_raw_moon_data
 from moon.models import MoonDay
-from moon.phases import get_phase, get_illumination
+from moon.phases import get_illumination
 from moon.phase_events import find_phase_events
 from moon.rise_set import get_rise_set
 from moon.feed import build_feed, save_feed
@@ -32,16 +32,47 @@ def get_sign(longitude):
         int(longitude // 30)
     ]
 
+def get_daily_phase(
+    current,
+    phase_lookup,
+    previous_phase_lookup,
+):
 
-def build_day(current):
+    if current in phase_lookup:
+        return phase_lookup[current]
+
+    tomorrow = current + timedelta(days=1)
+
+    if (
+        tomorrow in phase_lookup
+        and phase_lookup[tomorrow] == "New Moon"
+    ):
+        return "Balsamic Moon"
+
+    previous = previous_phase_lookup[current]
+
+    if previous == "New Moon":
+        return "Waxing Crescent"
+
+    if previous == "First Quarter":
+        return "Waxing Gibbous"
+
+    if previous == "Full Moon":
+        return "Waning Gibbous"
+
+    return "Waning Crescent"
+
+def build_day(     current,     phase_lookup,     previous_phase_lookup, ):
 
     raw = get_raw_moon_data(
         current
     )
 
-    phase = get_phase(
-        raw["angle"]
-    )
+    phase = get_daily_phase(
+    current,
+    phase_lookup,
+    previous_phase_lookup,
+)
 
     rise_set = get_rise_set(
         current
@@ -85,26 +116,6 @@ def build_day(current):
     )
 
 
-def attach_phase_events(days, events):
-
-    for event in events:
-
-        event_date = (
-            event["time"]
-            .date()
-        )
-
-        for day in days:
-
-            if day.date == event_date:
-
-                day.phase_time = (
-                    event["time"]
-                )
-
-                break
-
-
 
 def build_days(year):
 
@@ -128,27 +139,45 @@ def build_days(year):
 
     while current < end:
 
-        days.append(
-            build_day(
-                current
-            )
+    days.append(
+        build_day(
+            current,
+            phase_lookup,
+            previous_phase_lookup,
         )
+    )
 
-        current += timedelta(
-            days=1
-        )
-
+    current += timedelta(
+        days=1
+    )
 
     phase_events = find_phase_events(
         start,
         end
     )
 
+    phase_lookup = {}
 
-    attach_phase_events(
-        days,
-        phase_events
-    )
+for event in phase_events:
+
+    phase_lookup[
+        event["time"].date()
+    ] = event["phase"]
+
+
+previous_phase_lookup = {}
+
+last_phase = "Last Quarter"
+
+for current in (
+    start + timedelta(days=i)
+    for i in range((end - start).days)
+):
+
+    if current in phase_lookup:
+        last_phase = phase_lookup[current]
+
+    previous_phase_lookup[current] = last_phase
 
 
     return days
