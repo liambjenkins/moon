@@ -1,6 +1,11 @@
 from skyfield import almanac
 
-from moon.astronomy import ts, eph
+from moon.astronomy import (
+    ts,
+    eph,
+    get_phase_angle_at,
+    datetime_to_time,
+)
 
 
 SEASON_NAMES = {
@@ -59,6 +64,30 @@ def find_seasonal_events(
 
 
 
+def find_lunar_eclipses(
+    start_date,
+    end_date,
+):
+
+    # Placeholder structure.
+    # Eclipse calculation added next.
+
+    return []
+
+
+
+def find_solar_eclipses(
+    start_date,
+    end_date,
+):
+
+    # Placeholder structure.
+    # Eclipse calculation added next.
+
+    return []
+
+
+
 def find_celestial_events(
     start_date,
     end_date,
@@ -69,6 +98,22 @@ def find_celestial_events(
 
     events.extend(
         find_seasonal_events(
+            start_date,
+            end_date,
+        )
+    )
+
+
+    events.extend(
+        find_lunar_eclipses(
+            start_date,
+            end_date,
+        )
+    )
+
+
+    events.extend(
+        find_solar_eclipses(
             start_date,
             end_date,
         )
