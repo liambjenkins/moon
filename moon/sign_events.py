@@ -39,9 +39,7 @@ def get_boundary_degree(sign):
         sign
     )
 
-    return (
-        index * 30
-    )
+    return index * 30
 
 
 
@@ -97,17 +95,22 @@ def find_sign_events(
 
         if start_sign != end_sign:
 
+            transition_time = refine_sign_change(
+                start,
+                end,
+                start_sign,
+            )
+
+
             events.append(
                 {
                     "from": start_sign,
 
                     "to": end_sign,
 
-                    "time": refine_sign_change(
-                        start,
-                        end,
-                        start_sign,
-                    ),
+                    "time": transition_time,
+
+                    "date": transition_time.date(),
                 }
             )
 
@@ -141,14 +144,18 @@ def refine_sign_change(
         ) / 2
 
 
-        longitude = get_moon_longitude_at(
+        start_longitude = get_moon_longitude_at(
+            start
+        )
+
+        midpoint_longitude = get_moon_longitude_at(
             midpoint
         )
 
 
         if crossed_boundary(
-            get_moon_longitude_at(start),
-            longitude,
+            start_longitude,
+            midpoint_longitude,
             boundary,
         ):
 
@@ -181,6 +188,7 @@ def crossed_boundary(
         return (
             previous <= boundary <= current
         )
+
 
     else:
 
