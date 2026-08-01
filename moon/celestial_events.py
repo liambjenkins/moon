@@ -4,11 +4,10 @@ from moon.astronomy import (
     ts,
     eph,
     get_moon_longitude_at,
-    get_sun_longitude_at,
+    get_moon_latitude_at,
 )
 
 from moon.phase_events import find_phase_events
-
 
 
 SEASON_NAMES = {
@@ -81,6 +80,7 @@ def find_seasonal_events(
         events.append(
             {
                 "type": SEASON_NAMES[season],
+
                 "time": time.utc_datetime(),
             }
         )
@@ -130,12 +130,17 @@ def find_lunar_eclipses(
         dt = time.utc_datetime()
 
 
+        longitude = get_moon_longitude_at(
+            dt
+        )
+
+
         events.append(
             {
                 "type": "Lunar Eclipse",
 
                 "sign": get_sign(
-                    get_moon_longitude_at(dt)
+                    longitude
                 ),
 
                 "time": dt,
@@ -165,45 +170,42 @@ def find_solar_eclipses(
 
     for moon in new_moons:
 
+
         if moon["phase"] != "New Moon":
+
             continue
 
 
         dt = moon["time"]
 
 
-        moon_lon = get_moon_longitude_at(
-            dt
-        )
-
-        sun_lon = get_sun_longitude_at(
-            dt
-        )
-
-
-        separation = abs(
-            moon_lon - sun_lon
+        latitude = abs(
+            get_moon_latitude_at(
+                dt
+            )
         )
 
 
-        if separation > 180:
-            separation = 360 - separation
-
-
-        # Placeholder eclipse threshold:
-        # New Moon must be close to the Sun
-        # and near an eclipse node.
+        # Moon must be close to the
+        # ecliptic plane.
         #
-        # Refined once we add lunar latitude.
+        # This captures genuine
+        # solar eclipses.
 
-        if separation < 1:
+        if latitude <= 1.5:
+
+
+            longitude = get_moon_longitude_at(
+                dt
+            )
+
 
             events.append(
                 {
                     "type": "Solar Eclipse",
 
                     "sign": get_sign(
-                        moon_lon
+                        longitude
                     ),
 
                     "time": dt,
