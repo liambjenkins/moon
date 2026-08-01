@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from moon.astronomy import get_moon_longitude
+from moon.astronomy import get_moon_longitude_at
 
 
 MELBOURNE = ZoneInfo(
@@ -77,11 +77,11 @@ def find_sign_events(
         )
 
 
-        start_longitude = get_moon_longitude(
+        start_longitude = get_moon_longitude_at(
             start
         )
 
-        end_longitude = get_moon_longitude(
+        end_longitude = get_moon_longitude_at(
             end
         )
 
@@ -141,13 +141,13 @@ def refine_sign_change(
         ) / 2
 
 
-        longitude = get_moon_longitude(
+        longitude = get_moon_longitude_at(
             midpoint
         )
 
 
         if crossed_boundary(
-            get_moon_longitude(start),
+            get_moon_longitude_at(start),
             longitude,
             boundary,
         ):
