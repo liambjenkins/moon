@@ -35,3 +35,8 @@ jobs:
         with:
           name: Moon-${{ github.event.inputs.year }}
           path: Moon.ics
+
+      - name: Check Skyfield eclipse support
+  run: |
+    python -c "from skyfield import eclipselib; print('eclipselib works')"
+
