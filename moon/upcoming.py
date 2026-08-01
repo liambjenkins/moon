@@ -20,9 +20,6 @@ INCLUDED_CELESTIAL = [
 
 def format_days(days):
 
-    if days == 0:
-        return "today"
-
     if days == 1:
         return "tomorrow"
 
@@ -69,7 +66,8 @@ def build_upcoming(
         )
 
 
-        if days < 0 or days > 30:
+        # Only future events within 30 days
+        if days <= 0 or days > 30:
             continue
 
 
@@ -102,6 +100,7 @@ def build_upcoming(
         )
 
 
+
     #
     # CELESTIAL EVENTS
     #
@@ -121,7 +120,8 @@ def build_upcoming(
         )
 
 
-        if days < 0 or days > 30:
+        # Only future events within 30 days
+        if days <= 0 or days > 30:
             continue
 
 
@@ -157,8 +157,9 @@ def build_upcoming(
         )
 
 
+
     #
-    # SORT BY DATE
+    # SORT CHRONOLOGICALLY
     #
 
     upcoming.sort(
