@@ -63,7 +63,7 @@ def get_daily_phase(
         and phase_lookup[tomorrow]["phase"] == "New Moon"
     ):
 
-        return "Balsamic Moon"
+        return "Dark Moon"
 
 
 
@@ -285,6 +285,14 @@ def build_days(year):
 
 
 
+INCLUDED_DAY_PHASES = [
+    "New Moon",
+    "Full Moon",
+    "Dark Moon",
+]
+
+
+
 def build_moon_events(
     days,
     phase_events,
@@ -298,6 +306,10 @@ def build_moon_events(
 
 
     for day in days:
+
+        if day.phase not in INCLUDED_DAY_PHASES:
+
+            continue
 
 
         event = Event()
